@@ -24,7 +24,11 @@ kinan-plugin/
 │  └─ rappel-relais.js       UserPromptSubmit : rappel au-delà des seuils de relais
 ├─ skills/
 │  ├─ relais/SKILL.md        /kinan-orchestre:relais (écrit .claude/relais.md)
-│  └─ projet/                /kinan-orchestre:projet + PROJET-modele.md
+│  ├─ projet/                /kinan-orchestre:projet + PROJET-modele.md
+│  └─ demarrage/SKILL.md     /kinan-orchestre:demarrage (didacticiel : thème, noms d'agents, écriture et vérification de la configuration)
+├─ assets/                   logo.svg, banner.svg, banner.fr.svg (dérivés de icon.png)
+├─ examples/                 modèles à copier : agents/courrier.md, agents/devis.md, grille-prix.exemple.json (fictive), calculer-devis.exemple.js ; non chargés par le plugin, aucun code d'envoi
+├─ docs/ETENDRE.md           brancher son système, ajouter un agent (FR+EN)
 ├─ config/kinan.config.defaut.json   valeurs par défaut documentées
 ├─ outils/verifier-config.js         affiche la configuration effective et les alertes
 ├─ README.md  CHANGELOG.md  CONTRIBUTING.md  SECURITY.md  CODE_OF_CONDUCT.md
@@ -67,9 +71,14 @@ Emplacement : `<dossier d'état>/kinan.config.json`, dossier d'état = `KINAN_OS
 | `relais.minutes` | 10…1440 | 120 | rappel |
 | `relais.jetons` | 50 000…2 000 000 | 300 000 | rappel |
 | `relais.intervalleMinutes` | 5…240 | 20 | rappel |
+| `theme.fond` / `.surface` / `.texte` / `.accent` / `.accentSecondaire` | `#rgb` ou `#rrggbb` uniquement (pas de nom, `rgb()`, `url()`) | null | tableau de bord seulement |
+| `theme.policeTitre` / `.policeTexte` | `^[A-Za-z0-9][A-Za-z0-9 -]{0,39}$` | null | tableau de bord seulement |
+| `theme.logo` / `.source` | URL https, ≤ 300, sans espace, guillemet, chevron, parenthèse, point-virgule ni identifiants | null | tableau de bord seulement |
 | `sons` | objet libre | `{ "actif": true }` | tableau de bord seulement |
 | `textes.phrasesTravail` | ≤ 10 textes ≤ 60 | 5 phrases neutres | état affiché |
 | `textes.rappel` | texte ≤ 400, `{h}` `{m}` `{k}` | null (texte intégré) | rappel |
+
+Thème : le plugin enregistre et valide `theme` (`hooks/lib/config.js`, restitué par `outils/verifier-config.js`) ; c'est le tableau de bord Electron, livré à part, qui l'applique. Un champ invalide est ignoré, signalé et jamais exécuté ; un champ inconnu est ignoré et signalé. Le thème n'est pas injecté dans le contexte du modèle.
 
 Verrouillé hors configuration : le fichier `agents/kinan.md` (rôle de contrôle) et les règles de sécurité présentes dans chaque agent. Tout texte injecté est nettoyé (une ligne, sans `< > \``, longueur bornée). Une valeur invalide prend la valeur par défaut et produit une alerte affichée dans le bloc d'équipe et par `outils/verifier-config.js`.
 

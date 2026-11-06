@@ -37,6 +37,17 @@
     }
   },
   "relais": { "minutes": 120, "jetons": 300000, "intervalleMinutes": 20 },
+  "theme": {
+    "fond": null,
+    "surface": null,
+    "texte": null,
+    "accent": null,
+    "accentSecondaire": null,
+    "policeTitre": null,
+    "policeTexte": null,
+    "logo": null,
+    "source": null
+  },
   "sons": { "actif": true },
   "textes": {
     "phrasesTravail": ["Je travaille", "Bien reçu", "Je m'y mets", "Je réfléchis…", "Je répartis le travail"],

@@ -3,6 +3,11 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
+### Ajouté
+- Section `theme` de `kinan.config.json` (couleurs `#rgb`/`#rrggbb`, polices, logo, source), validée dans `hooks/lib/config.js` et affichée par `outils/verifier-config.js` ; appliquée par le tableau de bord, livré à part.
+- Compétence `/kinan-orchestre:demarrage` : didacticiel de premier lancement.
+- `examples/` (modèles d'agents courrier et devis, grille de prix fictive, script de calcul d'exemple) et `docs/ETENDRE.md`.
+- `assets/` : logo et bannières SVG ; en-tête des README refait.
 
 ## [0.1.0] - 2026-11-06
 ### Ajouté

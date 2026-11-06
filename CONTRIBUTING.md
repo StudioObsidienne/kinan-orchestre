@@ -6,6 +6,7 @@
    - `claude plugin validate .` passe ;
    - `node --check` passe sur chaque fichier de `hooks/` et `outils/` ;
    - les hooks restent silencieux en cas d'erreur, sans accès réseau, sans dépendance externe ;
+   - `examples/` ne contient aucun code d'envoi (courrier, message, devis) ;
    - aucune donnée personnelle, aucun chemin absolu propre à une machine, aucun chiffre non mesuré.
 4. Règles verrouillées (le juge Kinan, les règles de sécurité de base) : tout changement doit être discuté dans un ticket.
 5. Langues : le README existe en anglais (`README.md`) et en français (`README.fr.md`) ; tenez les deux à jour ensemble.

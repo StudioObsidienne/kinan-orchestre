@@ -26,6 +26,26 @@ const propre = (t, n) => String(t == null ? '' : t).replace(/[\r\n\t]+/g, ' ').r
 const entier = (v, min, max, d) => (Number.isInteger(v) && v >= min && v <= max ? v : d);
 const couleur = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null);
 
+// Thème (appliqué par le tableau de bord, jamais par le plugin). Chaque champ invalide est ignoré ; aucune valeur n'est exécutée.
+const CHAMPS_COULEUR = ['fond', 'surface', 'texte', 'accent', 'accentSecondaire'];
+const CHAMPS_POLICE = ['policeTitre', 'policeTexte'];
+const CHAMPS_URL = ['logo', 'source'];
+const CHAMPS_THEME = [...CHAMPS_COULEUR, ...CHAMPS_POLICE, ...CHAMPS_URL];
+// Couleur : #rgb ou #rrggbb, rien d'autre (pas de nom, rgb(), url(), point-virgule).
+const couleurTheme = (v) => (typeof v === 'string' && /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v.toLowerCase() : null);
+// Police : lettres, chiffres, espaces et tirets, 1 à 40 caractères (« Inter », « Playfair Display »).
+const policeTheme = (v) => (typeof v === 'string' && /^[A-Za-z0-9][A-Za-z0-9 -]{0,39}$/.test(v) ? v : null);
+// URL : https uniquement, 300 caractères au plus, ni identifiants ni caractères de rupture (espace, guillemets, chevrons, parenthèses, point-virgule…).
+function urlHttps(v) {
+  if (typeof v !== 'string' || v.length > 300 || /[\s"'<>`\\^{}|();]/.test(v)) return null;
+  try { const u = new URL(v); return u.protocol === 'https:' && u.hostname && !u.username && !u.password ? u.href : null; } catch { return null; }
+}
+const VALIDEURS = { couleur: couleurTheme, police: policeTheme, url: urlHttps };
+const NATURE = {};
+for (const c of CHAMPS_COULEUR) NATURE[c] = ['couleur', '#rgb ou #rrggbb'];
+for (const c of CHAMPS_POLICE) NATURE[c] = ['police', 'lettres, chiffres, espaces et tirets, 40 caractères au plus'];
+for (const c of CHAMPS_URL) NATURE[c] = ['url', 'URL https de 300 caractères au plus'];
+
 function lireJson(f) { return JSON.parse(fs.readFileSync(f, 'utf8').replace(/^﻿/, '')); }
 
 function charger() {
@@ -74,12 +94,25 @@ function charger() {
     jetons: entier(ur.jetons, 50000, 2000000, entier(dr.jetons, 50000, 2000000, 300000)),
     intervalleMinutes: entier(ur.intervalleMinutes, 5, 240, entier(dr.intervalleMinutes, 5, 240, 20))
   };
+  // Thème : valeur de l'utilisateur si valide, sinon valeur par défaut, sinon null.
+  const ut0 = u.theme, dth = d.theme && typeof d.theme === 'object' ? d.theme : {};
+  if (ut0 !== undefined && (!ut0 || typeof ut0 !== 'object' || Array.isArray(ut0))) alertes.push('theme : objet attendu, valeur ignorée');
+  const uth = ut0 && typeof ut0 === 'object' && !Array.isArray(ut0) ? ut0 : {};
+  const theme = {};
+  for (const k of CHAMPS_THEME) {
+    const [genre, attendu] = NATURE[k];
+    const v = VALIDEURS[genre];
+    if (uth[k] !== undefined && uth[k] !== null && v(uth[k]) === null) alertes.push(`theme.${k} : valeur invalide (${attendu}), ignorée`);
+    theme[k] = v(uth[k]) || v(dth[k]) || null;
+  }
+  for (const k of Object.keys(uth)) if (!CHAMPS_THEME.includes(k)) alertes.push(`theme.${propre(k, 30)} : champ inconnu, ignoré`);
+
   const sons = { ...(d.sons || {}), ...(u.sons && typeof u.sons === 'object' ? u.sons : {}) }; // lus par le tableau de bord seulement
   const ut = u.textes || {}, dt = d.textes || {};
   const phrases = (Array.isArray(ut.phrasesTravail) ? ut.phrasesTravail : dt.phrasesTravail || []).slice(0, 10).map((p) => propre(p, 60)).filter(Boolean);
   const textes = { phrasesTravail: phrases.length ? phrases : ['Je travaille'], rappel: propre(ut.rappel || dt.rappel, 400) || null };
 
-  return { dossier: DOSSIER, fichier: F_UTILISATEUR, juge, agents, relais, sons, textes, alertes };
+  return { dossier: DOSSIER, fichier: F_UTILISATEUR, juge, agents, relais, theme, sons, textes, alertes };
 }
 
 // Nom d'agent reçu des hooks (« kinan-orchestre:lecture », « drafion »…) -> identifiant de configuration, ou null.
