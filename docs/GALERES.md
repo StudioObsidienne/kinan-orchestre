@@ -37,13 +37,27 @@ Les problèmes rencontrés en montant Kinan Orchestre, avec leur cause et leur s
 
 - **Cause** : une tâche jamais terminée captait l'identifiant et la fin d'un nouvel agent.
 - **Solution** (corrigée dans le plugin) : après 4 h, la mission repasse « à faire » (champ `interrompue`). Une tâche saisie dans le tableau de bord n'est plus liée à un agent.
-- **On apprend** : même règle que pour l'agent muet, et une tâche saisie à la main dans l'appli ne doit pas être confondue avec le travail d'un agent.
+- **On apprend** : même règle que pour l'agent muet, et une tâche ajoutée directement dans l'appli ne doit pas être confondue avec le travail d'un agent.
 
 ## 7. Deux agents modifient le même fichier
 
 - **Cause** : sans règle, deux agents (ou deux conversations) peuvent écraser le travail l'un de l'autre.
 - **Solution** : le hook `hooks/verrou-fichiers.js` réserve un fichier à l'agent qui l'a modifié, jusqu'à la fin de cet agent ou 10 minutes sans modification. Le juge ne lance jamais deux agents en parallèle sur les mêmes fichiers.
 - **On apprend** : répartir les fichiers entre agents avant de lancer le travail, le verrou n'est que le filet de sécurité.
+
+## 8. Commandes réécrites dans le shell de l'outil Bash
+
+- **Symptôme** : sous Windows (Git Bash ou PowerShell), `nul` et `\r` sont altérés dans les commandes envoyées.
+- **Cause** : le shell de l'outil Bash réécrit certaines commandes avant de les exécuter.
+- **Solution** : écrire les fichiers avec un petit script Python (`chr(92)` pour la barre oblique inverse) ou utiliser les outils d'édition de fichiers.
+- **On apprend** : ne pas faire passer de `nul` ni de `\r` par la ligne de commande ; passer par un fichier.
+
+## 9. `gh` (GitHub CLI) absent : pas de release en ligne de commande
+
+- **Symptôme** : impossible de créer les releases depuis le terminal.
+- **Cause** : `gh` n'est pas installé.
+- **Solution** : publier la release depuis la page web du dépôt (Releases > Draft a new release). Le tag git existe déjà après le push.
+- **On apprend** : le tag suffit à préparer la release ; sa publication se fait sur la page web.
 
 ---
 

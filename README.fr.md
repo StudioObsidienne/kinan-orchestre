@@ -189,6 +189,20 @@ Les devis demandent votre propre grille de prix : copiez `examples/grille-prix.e
 
 Les hooks du plugin n'ouvrent aucune connexion réseau et n'ont aucune dépendance externe. Un hook peut refuser un outil : `verrou-fichiers.js` refuse la modification d'un fichier réservé par un autre agent actif ; en cas d'erreur, il ne refuse rien.
 
+Par défaut, le verrou refuse l'écriture. Avec la variable d'environnement `KINAN_VERROU=avertir`, l'écriture est permise et l'agent reçoit seulement un avertissement.
+
+```bash
+# macOS / Linux (session en cours)
+export KINAN_VERROU=avertir
+```
+
+```powershell
+# Windows PowerShell (session en cours)
+$env:KINAN_VERROU='avertir'
+# Windows, permanent (pour les terminaux ouverts ensuite)
+setx KINAN_VERROU avertir
+```
+
 Lu : l'événement envoyé par Claude Code au hook ; le début (64 Ko) et la fin (512 Ko) du journal local de la conversation, pour la durée et la taille du contexte ; `kinan.config.json` ; l'existence et la date de `.claude/relais.md` (pas son contenu).
 
 Ajouté au contexte du modèle : la composition de l'équipe (début de conversation), l'avis de point de reprise, le rappel de relais. Les textes issus de la configuration sont nettoyés (une ligne, sans chevrons ni accents graves, longueur bornée).

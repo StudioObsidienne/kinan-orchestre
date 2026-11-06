@@ -45,6 +45,20 @@ Problems met while building Kinan Orchestre, with cause and fix. Every entry com
 - **Fix**: the `hooks/verrou-fichiers.js` hook reserves a file for the agent that modified it, until that agent ends or 10 minutes pass without modification. The judge never launches two agents in parallel on the same files.
 - **Lesson**: split files between agents before starting; the lock is only the safety net.
 
+## 8. Commands rewritten in the Bash tool shell
+
+- **Symptom**: on Windows (Git Bash or PowerShell), `nul` and `\r` are altered in the commands sent.
+- **Cause**: the Bash tool's shell rewrites some commands before running them.
+- **Fix**: write files with a small Python script (`chr(92)` for the backslash) or use the file editing tools.
+- **Lesson**: do not pass `nul` or `\r` through the command line; go through a file.
+
+## 9. `gh` (GitHub CLI) missing: no releases from the command line
+
+- **Symptom**: releases cannot be created from the terminal.
+- **Cause**: `gh` is not installed.
+- **Fix**: publish the release from the repository's web page (Releases > Draft a new release). The git tag already exists after the push.
+- **Lesson**: the tag is enough to prepare the release; publishing it is done on the web page.
+
 ---
 
 Short sheet: only snags documented in the changelog, the code and the project notes are listed. More may be added.

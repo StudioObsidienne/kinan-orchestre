@@ -7,6 +7,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [
 - Tests automatisés `tests/` (`node --test tests/`, sans dépendance) : hooks, scripts, manifestes, permissions des agents, entrées illisibles, fichiers corrompus, agent muet, tâche bloquée, verrous, hooks simultanés.
 - Hook `hooks/verrou-fichiers.js` (PreToolUse Edit/Write/MultiEdit/NotebookEdit, SubagentStop, Stop) : un fichier modifié par un agent lui est réservé ; un autre agent ou une autre conversation est refusé jusqu'à la fin de cet agent ou 10 min sans modification.
 - `hooks/lib/fichiers.js` : lecture tolérante, écriture atomique et verrou communs aux hooks.
+- Variable d'environnement `KINAN_VERROU=avertir` : le verrou de fichiers permet l'écriture et n'envoie qu'un avertissement à l'agent (par défaut, il refuse).
 - README : section « Permissions des agents » ; juge : jamais deux agents en parallèle sur les mêmes fichiers.
 ### Corrigé
 - Un `state.json`, `taches.json`, `sessions.json`, `agents-ids.json` ou `rappels.json` corrompu (par exemple `null`) bloquait tous les événements suivants : il est réparé au premier événement.

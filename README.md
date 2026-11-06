@@ -189,6 +189,20 @@ Quotes need your own price grid: copy `examples/grille-prix.exemple.json` (ficti
 
 The plugin's hooks make no network connection and have no external dependency. One hook can refuse a tool call: `verrou-fichiers.js` refuses an edit of a file reserved by another active agent; on any error it refuses nothing.
 
+By default the lock refuses the write. With the environment variable `KINAN_VERROU=avertir`, the write is allowed and the agent only receives a warning.
+
+```bash
+# macOS / Linux (current session)
+export KINAN_VERROU=avertir
+```
+
+```powershell
+# Windows PowerShell (current session)
+$env:KINAN_VERROU='avertir'
+# Windows, permanent (applies to newly opened terminals)
+setx KINAN_VERROU avertir
+```
+
 Read: the event Claude Code sends to the hook; the start (64 KB) and end (512 KB) of the conversation's local log, for duration and context size; `kinan.config.json`; the existence and date of `.claude/relais.md` (not its content).
 
 Added to the model's context: the team composition (conversation start), the resume-point notice, the relay reminder. Text from the configuration is cleaned first (one line, no angle brackets or backticks, bounded length).
