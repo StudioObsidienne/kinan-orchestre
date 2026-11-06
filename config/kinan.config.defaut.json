@@ -1,6 +1,9 @@
 {
   "version": 1,
-  "juge": { "couleur": null, "avatar": null },
+  "juge": {
+    "couleur": null,
+    "avatar": null
+  },
   "agents": {
     "drafion": {
       "nom": "Drafion",
@@ -34,9 +37,35 @@
       "couleur": null,
       "avatar": null,
       "actif": true
+    },
+    "courrier": {
+      "nom": "Courrier",
+      "base": "kinan-orchestre:courrier",
+      "role": "Mails (option du tableau de bord) : résumés et brouillons de réponse. Lecture seule, n'envoie jamais.",
+      "modele": "haiku",
+      "effort": "low",
+      "effortHaut": "low",
+      "couleur": null,
+      "avatar": null,
+      "actif": true
+    },
+    "devis": {
+      "nom": "Devis",
+      "base": "kinan-orchestre:devis",
+      "role": "Devis (option du tableau de bord) : brouillons à valider à partir de votre grille de prix. N'envoie jamais.",
+      "modele": "sonnet",
+      "effort": "medium",
+      "effortHaut": "medium",
+      "couleur": null,
+      "avatar": null,
+      "actif": true
     }
   },
-  "relais": { "minutes": 120, "jetons": 300000, "intervalleMinutes": 20 },
+  "relais": {
+    "minutes": 120,
+    "jetons": 300000,
+    "intervalleMinutes": 20
+  },
   "theme": {
     "fond": null,
     "surface": null,
@@ -48,9 +77,17 @@
     "logo": null,
     "source": null
   },
-  "sons": { "actif": true },
+  "sons": {
+    "actif": true
+  },
   "textes": {
-    "phrasesTravail": ["Je travaille", "Bien reçu", "Je m'y mets", "Je réfléchis…", "Je répartis le travail"],
+    "phrasesTravail": [
+      "Je travaille",
+      "Bien reçu",
+      "Je m'y mets",
+      "Je réfléchis…",
+      "Je répartis le travail"
+    ],
     "rappel": null
   }
 }

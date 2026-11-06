@@ -4,6 +4,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [
 
 ## [Non publié]
 
+## [0.2.1] - 2026-11-06
+### Ajouté
+- Agents `courrier` et `devis` dans la configuration par défaut (affichés par le tableau de bord seulement quand l'option Courrier est activée).
+
 ## [0.2.0] - 2026-11-06
 ### Ajouté
 - Section `theme` de `kinan.config.json` (couleurs `#rgb`/`#rrggbb`, polices, logo, source), validée dans `hooks/lib/config.js` et affichée par `outils/verifier-config.js` ; appliquée par le tableau de bord, livré à part.
