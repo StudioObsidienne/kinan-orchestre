@@ -8,7 +8,7 @@
 
 <p align="center">Plugin Claude Code conçu pour réduire la consommation de jetons : chaque tâche va au modèle le moins cher capable de la réussir, et un juge vérifie le résultat.</p>
 
-<p align="center"><a href="README.md">English</a> | <b>Français</b></p>
+<p align="center"><a href="README.md">English</a> | <b>Français</b> | <a href="https://kinan-orchestre-site.vercel.app/">Site web</a></p>
 
 https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
 

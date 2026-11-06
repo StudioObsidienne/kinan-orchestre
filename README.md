@@ -8,7 +8,7 @@
 
 <p align="center">A Claude Code plugin designed to reduce token consumption: each task goes to the cheapest model able to complete it, and a judge checks the result.</p>
 
-<p align="center"><b>English</b> | <a href="README.fr.md">Français</a></p>
+<p align="center"><b>English</b> | <a href="README.fr.md">Français</a> | <a href="https://kinan-orchestre-site.vercel.app/">Website</a></p>
 
 https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
 
