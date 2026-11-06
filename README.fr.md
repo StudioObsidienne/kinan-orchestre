@@ -8,6 +8,8 @@
 
 <p align="center"><a href="README.md">English</a> | <b>Français</b></p>
 
+<p align="center"><a href="assets/teaser-fr.mp4"><img src="assets/teaser-poster-fr.png" alt="Voir le teaser de 45 secondes (mp4)" width="640"></a><br><sub>Teaser de 45 secondes (muet, MP4). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
+
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
 > État : version 0.1.0, première version. Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée.
