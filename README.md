@@ -10,7 +10,7 @@
 
 <p align="center"><b>English</b> | <a href="README.fr.md">Français</a> | <a href="https://kinan-orchestre-site.vercel.app/">Website</a></p>
 
-https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
+https://github.com/user-attachments/assets/a978db97-4729-49fc-891f-31bbd257a1eb
 
 <p align="center"><sub>95-second teaser, no voice, with quiet sound effects (turn the sound on). The dashboard footage uses demo data.</sub></p>
 
