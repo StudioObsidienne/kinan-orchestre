@@ -61,6 +61,8 @@ No savings figure is given. A measured comparison (same task, one large model ag
 
 The agents' and skills' instructions are written in French. The judge answers in the language you use.
 
+Version numbers: the plugin and the kinan-dashboard app are two separate things with their own version numbers (for example plugin 0.2.1, dashboard 0.2.6). The dashboard shows both ("Dashboard" and "Plugin"). Updating one does not update the other: the plugin is updated in Claude Code, the dashboard with `git pull`.
+
 ## Installation
 
 Requirements: Claude Code, and Node.js reachable through the `node` command.

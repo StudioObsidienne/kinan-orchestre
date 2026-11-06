@@ -61,6 +61,8 @@ Aucun chiffre d'économie n'est annoncé. Un comparatif mesuré (même tâche, u
 
 Les instructions des agents et des compétences sont rédigées en français. Le juge répond dans la langue que vous utilisez.
 
+Numéros de version : le plugin et l'appli kinan-dashboard sont deux éléments distincts, avec chacun leur numéro (par exemple plugin 0.2.1, dashboard 0.2.6). Le tableau de bord affiche les deux (« Dashboard » et « Plugin »). Mettre l'un à jour ne met pas l'autre à jour : le plugin se met à jour dans Claude Code, le tableau de bord avec `git pull`.
+
 ## Installation
 
 Prérequis : Claude Code et Node.js accessible par la commande `node`.
