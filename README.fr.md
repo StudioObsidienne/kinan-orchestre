@@ -224,6 +224,11 @@ Une application Electron affiche l'état des agents et des conversations à part
 - Les règles propres à votre projet vont dans votre `CLAUDE.md` ou `PROJET.md`, pas dans le plugin.
 - Installation chez un tiers : non testée tant que ce n'est pas fait.
 
+## Aide et économie de jetons
+
+- [Problèmes connus et solutions](docs/GALERES.md) : ce qui peut mal tourner à l'installation et comment le corriger.
+- [Master prompt](docs/PROMPT-MASTER.md) : un prompt à coller, pour que votre assistant respecte les réglages de Kinan à chaque demande et consomme moins de jetons.
+
 ## Contribuer
 
 Ouvrez un ticket avant un changement important (nouvel agent par défaut, nouvel événement de hook, changement du schéma de configuration). Un changement par demande de fusion, avec une ligne dans `CHANGELOG.md`. Détails, dont les contrôles à lancer : `CONTRIBUTING.md`. Conduite : `CODE_OF_CONDUCT.md`. Tenez `README.md` et `README.fr.md` à jour ensemble.

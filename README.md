@@ -224,6 +224,11 @@ An Electron application displays agent and conversation state from the files in 
 - Rules specific to your project belong in your `CLAUDE.md` or `PROJET.md`, not in the plugin.
 - Third-party installation: not tested until it has been done.
 
+## Help and token savings
+
+- [Known problems and fixes](docs/GALERES.en.md): what went wrong during setup and how to fix it.
+- [Master prompt](docs/PROMPT-MASTER.en.md): a ready-to-paste prompt that makes your assistant follow Kinan's settings on every request, to cut token use.
+
 ## Contributing
 
 Open an issue before a significant change (new default agent, new hook event, change to the configuration schema). One change per pull request, with a line in `CHANGELOG.md`. Details, including the checks to run: `CONTRIBUTING.md`. Conduct: `CODE_OF_CONDUCT.md`. Keep `README.md` and `README.fr.md` in step.
