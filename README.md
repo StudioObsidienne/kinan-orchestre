@@ -12,7 +12,7 @@
 
 https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
 
-<p align="center"><sub>45-second teaser (silent). The dashboard footage uses demo data.</sub></p>
+<p align="center"><sub>95-second teaser, no voice, with quiet sound effects (turn the sound on). The dashboard footage uses demo data.</sub></p>
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 

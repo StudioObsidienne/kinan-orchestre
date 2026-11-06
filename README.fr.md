@@ -12,7 +12,7 @@
 
 https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
 
-<p align="center"><sub>Teaser de 45 secondes (muet). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
+<p align="center"><sub>Teaser de 95 secondes, sans voix, avec effets sonores discrets (son à activer). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
