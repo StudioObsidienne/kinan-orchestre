@@ -15,7 +15,9 @@ kinan-plugin/
 │  ├─ kinan.md               juge et chef d'orchestre (sonnet), rôle verrouillé
 │  ├─ lecture.md             lecture seule (haiku), outils restreints
 │  ├─ production.md          production (sonnet)
-│  └─ expert.md              difficile (opus)
+│  ├─ expert.md              difficile (opus)
+│  ├─ courrier.md            récap des mails et brouillons (haiku), lancé par l'onglet Courrier du tableau de bord ; Read/Glob/Grep, réponse JSON
+│  └─ devis.md               brouillons de devis (sonnet) : lignes et quantités de la grille, montants calculés par le tableau de bord
 ├─ hooks/
 │  ├─ hooks.json             déclaration des hooks (clé racine "hooks"), chemins via ${CLAUDE_PLUGIN_ROOT}
 │  ├─ lib/config.js          chargement + validation de kinan.config.json, correspondance nom d'agent -> identifiant
@@ -48,7 +50,8 @@ Choix : `skills/` plutôt que `commands/` (format recommandé par la documentati
 | Relais dans la mémoire automatique du projet + ligne CLAUDE.md | Généralisé : `.claude/relais.md` dans le projet, signalé par SessionStart (le CLAUDE.md d'un plugin n'est pas chargé) |
 | Fiche PROJET.md | Généralisée (pas seulement pour les sites) |
 | `lancer.js` (lance Electron au démarrage) | Exclu du noyau : appartient au tableau de bord optionnel |
-| Mails, devis, grille de prix, agents mails et devis, `mesure-fixe.js`, gabarit de site, contrôles `npm run controle` | Exclus (propres au studio) ; « contrôles par scripts » reste une règle de méthode |
+| Agents mails et devis | Généralisés (6 nov. 2026) : `agents/courrier.md`, `agents/devis.md`, sans chemin ni nom propre ; connexion IMAP/SMTP, validation et envoi dans l'onglet Courrier optionnel du tableau de bord |
+| Grille de prix réelle, `mesure-fixe.js`, gabarit de site, contrôles `npm run controle` | Exclus (propres au studio) ; « contrôles par scripts » reste une règle de méthode |
 | Interdits personnels (dépôt, DNS, formulations), chemins personnels, noms de clients, contenu de `~/.kinan-os` | Exclus ; trois règles de sécurité génériques verrouillées à la place |
 
 ## 3. Schéma de `kinan.config.json`

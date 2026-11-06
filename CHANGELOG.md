@@ -8,6 +8,10 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [
 - Compétence `/kinan-orchestre:demarrage` : didacticiel de premier lancement.
 - `examples/` (modèles d'agents courrier et devis, grille de prix fictive, script de calcul d'exemple) et `docs/ETENDRE.md`.
 - `assets/` : logo et bannières SVG ; en-tête des README refait.
+- Agents `courrier` (Haiku) et `devis` (Sonnet), lancés par l'onglet Courrier du tableau de bord : lecture seule (Read, Glob, Grep), chemins reçus dans le message de l'appli, réponse en bloc JSON validé par l'appli. Récap des mails en lignes séparées ; liste `non_lus` pour qu'un mail non lu ne passe jamais à « traité » ; le devis choisit des lignes et des quantités de la grille, les montants sont calculés par l'appli.
+- README : section « Courrier et devis » (connexion de la boîte par fournisseur : Zoho, Gmail, Outlook/Microsoft 365, OVHcloud, iCloud, autre) ; ligne `mentions` facultative dans la grille d'exemple.
+### Modifié
+- README, section Tableau de bord : la phrase sur une future édition sans modules réseau est remplacée par la description des deux options réseau désactivées par défaut (mises à jour, courrier).
 
 ## [0.1.0] - 2026-11-06
 ### Ajouté

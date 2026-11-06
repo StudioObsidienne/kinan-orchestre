@@ -6,7 +6,7 @@ English | [Français](#français)
 
 ### Principle
 
-The plugin contains no code that sends anything: no mail, no message, no quote. Reading and drafting for such tasks is done by agents that you write and connect yourself. This keeps the plugin free of network connections and credentials, and leaves the decision to send with you.
+The plugin contains no code that sends anything: no mail, no message, no quote. It ships two ready agents, `courrier` and `devis`, that the dashboard's optional Mail tab uses with your own mailbox (see the README, section Mail and quotes). To use another system instead, you write and connect your own agents, as described here. Either way the plugin stays free of network connections and credentials, and the decision to send stays with you.
 
 `examples/` holds two agent templates to copy and adapt, a fictional price grid and a sample calculation script. Claude Code does not load anything from `examples/`: a file only becomes an agent once you copy it to `.claude/agents/` (one project) or `~/.claude/agents/` (all projects).
 
@@ -53,7 +53,7 @@ Three usual routes. Pick the one that matches what you already use.
 
 ### Limits
 
-Agents follow written instructions: compliance is not guaranteed, which is why sending stays a manual step. The author's dashboard includes a mailbox module that opens network connections; it is not part of this plugin.
+Agents follow written instructions: compliance is not guaranteed, which is why sending stays a manual step. The dashboard's Mail tab opens connections to the IMAP and SMTP servers you choose, only once you enable it; it is a separate repository.
 
 ---
 
@@ -61,7 +61,7 @@ Agents follow written instructions: compliance is not guaranteed, which is why s
 
 ### Principe
 
-Le plugin ne contient aucun code d'envoi : ni mail, ni message, ni devis. La lecture et la préparation de brouillons sont confiées à des agents que vous écrivez et branchez vous-même. Le plugin reste ainsi sans connexion réseau ni identifiant, et la décision d'envoyer vous appartient.
+Le plugin ne contient aucun code d'envoi : ni mail, ni message, ni devis. Il fournit deux agents prêts, `courrier` et `devis`, que l'onglet Courrier optionnel du tableau de bord utilise avec votre propre boîte (voir le README, section Courrier et devis). Pour un autre système, vous écrivez et branchez vos propres agents, comme décrit ici. Dans les deux cas, le plugin reste sans connexion réseau ni identifiant, et la décision d'envoyer vous appartient.
 
 Le dossier `examples/` contient deux modèles d'agents à copier et adapter, une grille de prix fictive et un exemple de script de calcul. Claude Code ne charge rien depuis `examples/` : un fichier ne devient un agent qu'une fois copié dans `.claude/agents/` (un projet) ou `~/.claude/agents/` (tous les projets).
 
@@ -108,4 +108,4 @@ Trois voies habituelles. Choisissez celle qui correspond à ce que vous utilisez
 
 ### Limites
 
-Les agents suivent des instructions écrites : leur respect n'est pas garanti, c'est pourquoi l'envoi reste un geste manuel. Le tableau de bord de l'auteur inclut un module courrier qui ouvre des connexions réseau ; il ne fait pas partie de ce plugin.
+Les agents suivent des instructions écrites : leur respect n'est pas garanti, c'est pourquoi l'envoi reste un geste manuel. L'onglet Courrier du tableau de bord ouvre des connexions vers les serveurs IMAP et SMTP que vous choisissez, seulement une fois activé ; c'est un dépôt séparé.

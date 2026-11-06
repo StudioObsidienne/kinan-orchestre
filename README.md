@@ -57,7 +57,7 @@ No savings figure is given. A measured comparison (same task, one large model ag
 | First-run walkthrough (`/kinan-orchestre:demarrage`) | plugin | Reads one page that you name; colors and fonts it reports are approximate and are shown to you for approval before anything is written. |
 | Project sheet `PROJET.md` (`/kinan-orchestre:projet`) | plugin | The model fills in only what it can verify; the rest is left for you. |
 | Script checks: the judge prefers a script that returns a short summary over reading whole pages | method | The plugin ships no check script: write one per project. |
-| Mail and quotes | your own agents | Not included. Templates and a guide are provided, see [Extending](#extending-mail-and-quotes). |
+| Mail and quotes: summary of new mails (one line per point), reply drafts, quote drafts from your own price grid | agents `courrier` (Haiku) and `devis` (Sonnet): plugin; mailbox, validation and sending: dashboard Mail tab, optional and disabled by default | The agents only read (Read, Glob, Grep) and answer with a JSON block that the dashboard checks. Amounts are computed by the dashboard from your grid, never by the model. Nothing is sent without your validation and a system confirmation. See [Mail and quotes](#mail-and-quotes). |
 
 The agents' and skills' instructions are written in French. The judge answers in the language you use.
 
@@ -75,6 +75,19 @@ The first two lines are typed inside Claude Code (a local path to this folder al
 
 **Recommended setting:** for the judge to work as designed, select **Sonnet 5.5** with **medium** effort in the main Claude chat (model and effort pickers, or `/model`). He delegates the heavy work to the other agents; a larger model in the main chat costs more without making him better.
 
+### Install the dashboard too (recommended)
+
+The plugin only writes state files. The **dashboard** displays them: agents, conversations, tokens, next relay, usage-limit alert and your theme. Without it you get no screen and the theme has no visible effect. For a complete, working setup, install both:
+
+```
+git clone https://github.com/StudioObsidienne/kinan-dashboard.git
+cd kinan-dashboard
+npm install
+npm start
+```
+
+Requirements: Node.js 20 or later and npm. On Windows, `lancer-kinan-os.cmd` in that folder runs the same steps. Details and limits: [kinan-dashboard](https://github.com/StudioObsidienne/kinan-dashboard).
+
 ## First run
 
 In the conversation, type:
@@ -85,9 +98,9 @@ In the conversation, type:
 
 The walkthrough asks, one question at a time (each can be skipped):
 
-1. The https address of your website. It reads that page to propose your colors, fonts and logo address.
-2. Your approval or changes to that palette. Nothing is written before you agree.
-3. Names for your agents (the judge's name is locked).
+1. Names for your agents, asked first (the judge's name is locked).
+2. The https address of your website. It reads that page to propose your colors, fonts and logo address.
+3. Your approval or changes to that palette. Nothing is written before you agree.
 4. Then it writes `~/.kinan-os/kinan.config.json` (merging with what is already there), runs `node outils/verifier-config.js` and summarizes.
 
 The only network access is the reading of the page you named. The page content is treated as data: instructions found in it are ignored. Other commands: `/kinan-orchestre:relais` (prepares the handover to a new conversation), `/kinan-orchestre:projet` (creates the project sheet).
@@ -126,16 +139,35 @@ The `theme` section describes your visual identity. The Electron dashboard, deli
 
 Every other value (color names, `rgb()`, `url()`, semicolons, `http://`, `javascript:`, unknown fields) is ignored, never executed, and reported by `node outils/verifier-config.js`. Schema detail: `SPEC.md`.
 
-## Extending: mail and quotes
+## Mail and quotes
 
-The plugin contains no code that sends anything. To read mail or prepare quotes, you copy a template from `examples/` and connect your own system (a messaging MCP server, a script or an API):
+The plugin contains no code that connects to a mailbox or sends anything. It ships two agents that the dashboard's Mail tab launches in the background (`claude -p --agent kinan-orchestre:courrier`, then `kinan-orchestre:devis`):
 
-- `examples/agents/courrier.md`: reads and summarizes messages, prepares reply drafts, never sends.
-- `examples/agents/devis.md`: prepares a quote draft from your price grid; amounts come from your own script, never from the model's estimate.
-- `examples/grille-prix.exemple.json`: a fictional price grid. Replace it with yours.
-- `examples/calculer-devis.exemple.js`: a sample calculation script, without network access.
+- `agents/courrier.md` (Haiku): reads the mails the dashboard fetched, summarizes them (the summary is one line per point), flags quote requests and suspicious mails, proposes reply drafts.
+- `agents/devis.md` (Sonnet): picks lines and quantities from your price grid for each quote request. It gives no price: the dashboard computes each amount, the VAT and the total from your grid.
 
-The guide `docs/ETENDRE.md` explains how to connect a system, how to add an agent, and which safety rules to keep. The author's own dashboard includes a mailbox module that opens network connections. It is not part of this plugin.
+Both are limited to Read, Glob and Grep, read only the files the dashboard names in its message, and answer with a JSON block. The dashboard validates that block and writes the drafts itself; it recomputes the recipient from the original mail, and a mail is marked as processed only if the agent actually listed it. Mail content is treated as data, never as instructions.
+
+### Connect your mailbox (dashboard, Mail tab)
+
+1. Install the dashboard (see above), open Gestion, then the **Courrier** (Mail) tab, and click **Activer le courrier** (enable). Until then, the dashboard opens no mail connection.
+2. Choose your provider, enter your address and an app password, click **Enregistrer** (save) then **Tester la connexion** (test). The password is encrypted by the operating system and never shown again.
+3. **Relever** fetches new mails (read-only), **Récap mails** runs the `courrier` agent, **Préparer les devis** runs the `devis` agent. Validate the drafts, then **Envoyer**: a system dialog lists the recipients before anything is sent.
+
+| Provider | Password to use | Before connecting |
+|---|---|---|
+| Zoho Mail (zoho.eu or zoho.com) | An app-specific password (Zoho account, Security, App passwords) | Enable IMAP (Zoho Mail settings, Mail, IMAP access) and choose your account's region. |
+| Gmail / Google Workspace | An app password (Google Account, Security; 2-Step Verification required). Your usual password is refused. | Check that IMAP is enabled (Settings, See all settings, Forwarding and POP/IMAP). A Workspace administrator can block IMAP or app passwords. |
+| Outlook.com / Microsoft 365 | An app password, if your account offers one | Microsoft increasingly requires modern authentication (OAuth), which this version does not support: the connection may be refused. On Microsoft 365, your administrator must allow IMAP and authenticated SMTP (SMTP AUTH). |
+| OVHcloud (MX Plan) | The mailbox password set in the OVHcloud control panel | IMAP is on by default. For Email Pro or Exchange, choose "Autre" (Other) with the servers shown in your control panel. |
+| iCloud Mail | An app-specific password (Apple Account, Sign-In and Security; two-factor authentication required) | If login fails, enter the part of the address before the @ as the login. |
+| Other | What your provider documents for IMAP and SMTP | Enter the IMAP and SMTP host, port and security (SSL/TLS or STARTTLS). A host name is required (no IP address, no localhost); unencrypted connections are not offered. |
+
+Quotes need your own price grid: copy `examples/grille-prix.exemple.json` (fictional) to `grille-prix.json` in the dashboard's `echange` folder and replace its lines with your services and prices. Optional `mentions` lines (legal notices, payment terms) are printed at the bottom of the PDF.
+
+### Connecting another system
+
+`examples/` keeps templates for a different setup (a messaging MCP server, a script or an API): `examples/agents/courrier.md`, `examples/agents/devis.md`, `examples/calculer-devis.exemple.js`. The guide `docs/ETENDRE.md` explains how to connect a system, how to add an agent, and which safety rules to keep.
 
 ## Security and privacy
 
@@ -151,9 +183,9 @@ Written to the project, on your request: `.claude/relais.md`, `PROJET.md`.
 
 Never sent: nothing leaves your machine through the hooks. The walkthrough reads the one page you name, through Claude Code's web reading tool. To report a vulnerability, see `SECURITY.md`.
 
-### Dashboard (optional, tested on Windows)
+### Dashboard (recommended, tested on Windows)
 
-An Electron application displays agent and conversation state from the files in `~/.kinan-os/` and applies `theme`. It is a separate option, not included in this plugin, and has only been tested on Windows. Beyond the files above, it reads the end of recent Claude Code logs (`~/.claude/projects`) for the relay reminder and the TOKEN OUT alert. The author's own build also includes a site-monitoring module and a mailbox module that DO open network connections; a public edition of the dashboard would ship without them, and until it is published and audited you should not assume the dashboard is offline.
+An Electron application displays agent and conversation state from the files in `~/.kinan-os/` and applies `theme`. It is a separate repository, [kinan-dashboard](https://github.com/StudioObsidienne/kinan-dashboard), not included in this plugin; install it for a complete setup. It has only been tested on Windows. Beyond the files above, it reads the end of recent Claude Code logs (`~/.claude/projects`) for the relay reminder and the TOKEN OUT alert. By default it opens no network connection. Two options open some, only once you enable them: the update check (`raw.githubusercontent.com`) and the Mail tab (the IMAP and SMTP servers of the mailbox you choose, plus `claude -p` for the summaries, which uses your Claude account like any Claude Code session). `npm run verifier` in the dashboard folder checks these rules statically; the dashboard's README lists every connection and every file it reads and writes.
 
 ### General limits
 

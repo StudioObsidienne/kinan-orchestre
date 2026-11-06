@@ -1,6 +1,6 @@
 ---
 name: demarrage
-description: Didacticiel de premier lancement. Relève les couleurs, polices et logo de votre site, nomme vos agents, écrit ~/.kinan-os/kinan.config.json puis le vérifie.
+description: Didacticiel de premier lancement. Nomme vos agents en premier, puis relève les couleurs, polices et logo de votre site, écrit ~/.kinan-os/kinan.config.json puis le vérifie.
 disable-model-invocation: true
 ---
 
@@ -14,7 +14,10 @@ Tu guides l'utilisateur, pas à pas, pour personnaliser Kinan orchestre. Une que
 - Le juge Kinan est verrouillé : son nom, son rôle et son modèle ne se changent pas. Dis-le si on te le demande.
 - N'écris dans aucun fichier avant la confirmation de l'étape 4.
 
-## 1. Adresse du site
+## 1. Noms des agents (première question)
+Lis les agents effectifs : `agents` du fichier de l'utilisateur s'il existe, sinon ceux de `${CLAUDE_PLUGIN_ROOT}/config/kinan.config.defaut.json`. Affiche identifiant, nom actuel, rôle. Commence par cette question : c'est la toute première chose que l'utilisateur règle. Demande un nouveau nom pour chacun (24 caractères au plus, sans chevron ni accent grave) ou « passer ». Seul le nom change : identifiant, base, modèle et effort restent.
+
+## 2. Adresse du site
 Demande l'adresse du site de l'utilisateur (https://…). Refuse tout ce qui n'est pas https (http, ftp, fichier local) et explique pourquoi en une phrase ; redemande, ou propose de passer.
 
 Lis la page avec WebFetch. Demande-lui UNIQUEMENT : les couleurs dominantes (en hexadécimal), les noms des polices de titre et de texte, l'adresse absolue (https) du logo ou de l'icône du site. Rien d'autre.
@@ -26,13 +29,10 @@ Ne retiens que les valeurs au bon format :
 
 Limite à dire franchement : le lecteur web peut ne pas voir les styles chargés par script ou par une feuille externe, et résume la page : les valeurs sont approximatives. Si rien d'exploitable n'est trouvé, dis-le et propose de saisir les valeurs toi-même ou de passer.
 
-## 2. Palette proposée
+## 3. Palette proposée
 Présente un tableau court : fond, surface (cartes, panneaux), texte, accent, accent secondaire, police titre, police texte, logo, source (l'adresse donnée, https). Indique pour chaque ligne ce qui vient de la page et ce que tu as déduit. Si le contraste texte/fond semble faible, signale-le.
 
 Demande : valider, modifier, ou passer. Applique les modifications demandées, avec les mêmes formats. Ne passe pas à la suite sans réponse.
-
-## 3. Noms des agents
-Lis les agents effectifs : `agents` du fichier de l'utilisateur s'il existe, sinon ceux de `${CLAUDE_PLUGIN_ROOT}/config/kinan.config.defaut.json`. Affiche identifiant, nom actuel, rôle. Demande un nouveau nom pour chacun (24 caractères au plus, sans chevron ni accent grave) ou « passer ». Seul le nom change : identifiant, base, modèle et effort restent.
 
 ## 4. Écriture
 Dossier d'état : la variable `KINAN_OS_DOSSIER` si elle est définie, sinon `.kinan-os` dans le dossier personnel (`node -e "console.log(require('os').homedir())"` donne ce dossier). Fichier : `kinan.config.json`.

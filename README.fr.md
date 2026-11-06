@@ -57,7 +57,7 @@ Aucun chiffre d'économie n'est annoncé. Un comparatif mesuré (même tâche, u
 | Didacticiel de premier lancement (`/kinan-orchestre:demarrage`) | plugin | Lit une seule page, celle que vous indiquez ; les couleurs et polices relevées sont approximatives et vous sont présentées pour validation avant toute écriture. |
 | Fiche de projet `PROJET.md` (`/kinan-orchestre:projet`) | plugin | Le modèle remplit seulement ce qu'il peut vérifier ; le reste est à compléter. |
 | Contrôles par scripts : le juge préfère un script qui rend un résumé court à la lecture de pages entières | méthode | Le plugin ne fournit pas de script de contrôle : à écrire pour chaque projet. |
-| Courrier et devis | vos propres agents | Non inclus. Des modèles et un guide sont fournis, voir [Étendre](#étendre--courrier-et-devis). |
+| Courrier et devis : récap des nouveaux mails (une ligne par point), brouillons de réponse, brouillons de devis à partir de votre grille de prix | agents `courrier` (Haiku) et `devis` (Sonnet) : plugin ; boîte mail, validation et envoi : onglet Courrier du tableau de bord, optionnel et désactivé par défaut | Les agents ne font que lire (Read, Glob, Grep) et répondent par un bloc JSON contrôlé par le tableau de bord. Les montants sont calculés par le tableau de bord depuis votre grille, jamais par le modèle. Rien n'est envoyé sans votre validation et une confirmation du système. Voir [Courrier et devis](#courrier-et-devis). |
 
 Les instructions des agents et des compétences sont rédigées en français. Le juge répond dans la langue que vous utilisez.
 
@@ -75,6 +75,19 @@ Les deux premières lignes se tapent dans Claude Code (un chemin local vers ce d
 
 **Réglage recommandé :** pour que le juge fonctionne comme prévu, choisissez **Sonnet 5.5** avec un effort **moyen** dans le chat Claude principal (sélecteurs de modèle et d'effort, ou `/model`). Il confie le gros du travail aux autres agents ; un modèle plus gros dans le chat principal coûte plus sans le rendre meilleur.
 
+### Installez aussi le tableau de bord (recommandé)
+
+Le plugin se contente d'écrire des fichiers d'état. C'est le **tableau de bord** qui les affiche : agents, conversations, jetons, prochain relais, alerte de limites et votre thème. Sans lui, pas d'écran et le thème n'a aucun effet visible. Pour une installation complète qui marche, installez les deux :
+
+```
+git clone https://github.com/StudioObsidienne/kinan-dashboard.git
+cd kinan-dashboard
+npm install
+npm start
+```
+
+Prérequis : Node.js 20 ou plus et npm. Sous Windows, `lancer-kinan-os.cmd` dans ce dossier exécute les mêmes étapes. Détails et limites : [kinan-dashboard](https://github.com/StudioObsidienne/kinan-dashboard).
+
 ## Premier lancement
 
 Dans la conversation, tapez :
@@ -85,9 +98,9 @@ Dans la conversation, tapez :
 
 Le didacticiel pose une question à la fois (chacune peut être passée) :
 
-1. L'adresse https de votre site. Il lit cette page pour proposer vos couleurs, vos polices et l'adresse de votre logo.
-2. Votre validation ou vos changements sur cette palette. Rien n'est écrit avant votre accord.
-3. Les noms de vos agents (le nom du juge est verrouillé).
+1. Les noms de vos agents, demandés en premier (le nom du juge est verrouillé).
+2. L'adresse https de votre site. Il lit cette page pour proposer vos couleurs, vos polices et l'adresse de votre logo.
+3. Votre validation ou vos changements sur cette palette. Rien n'est écrit avant votre accord.
 4. Puis il écrit `~/.kinan-os/kinan.config.json` (en fusionnant avec l'existant), lance `node outils/verifier-config.js` et résume.
 
 Le seul accès réseau est la lecture de la page que vous indiquez. Son contenu est traité comme une donnée : les instructions qu'il contiendrait sont ignorées. Autres commandes : `/kinan-orchestre:relais` (prépare la reprise dans une nouvelle conversation), `/kinan-orchestre:projet` (crée la fiche de projet).
@@ -126,16 +139,35 @@ La section `theme` décrit votre identité visuelle. C'est le tableau de bord El
 
 Toute autre valeur (nom de couleur, `rgb()`, `url()`, point-virgule, `http://`, `javascript:`, champ inconnu) est ignorée, jamais exécutée, et signalée par `node outils/verifier-config.js`. Détail du schéma : `SPEC.md`.
 
-## Étendre : courrier et devis
+## Courrier et devis
 
-Le plugin ne contient aucun code qui envoie quoi que ce soit. Pour lire du courrier ou préparer des devis, vous copiez un modèle de `examples/` et vous branchez votre propre système (un serveur MCP de messagerie, un script ou une API) :
+Le plugin ne contient aucun code qui se connecte à une boîte mail ou qui envoie quoi que ce soit. Il fournit deux agents que l'onglet Courrier du tableau de bord lance en arrière-plan (`claude -p --agent kinan-orchestre:courrier`, puis `kinan-orchestre:devis`) :
 
-- `examples/agents/courrier.md` : lit et résume des messages, prépare des brouillons de réponse, n'envoie jamais.
-- `examples/agents/devis.md` : prépare un brouillon de devis à partir de votre grille de prix ; les montants viennent de votre propre script, jamais d'une estimation du modèle.
-- `examples/grille-prix.exemple.json` : une grille de prix fictive. Remplacez-la par la vôtre.
-- `examples/calculer-devis.exemple.js` : un exemple de script de calcul, sans accès réseau.
+- `agents/courrier.md` (Haiku) : lit les mails relevés par le tableau de bord, les résume (une ligne par point), repère les demandes de devis et les mails suspects, propose des brouillons de réponse.
+- `agents/devis.md` (Sonnet) : choisit, pour chaque demande, des lignes et des quantités dans votre grille de prix. Il ne donne aucun prix : le tableau de bord calcule chaque montant, la TVA et le total depuis votre grille.
 
-Le guide `docs/ETENDRE.md` explique comment brancher un système, ajouter un agent et quelles règles de sécurité conserver. Le tableau de bord de l'auteur inclut un module courrier qui ouvre des connexions réseau. Il ne fait pas partie de ce plugin.
+Les deux sont limités à Read, Glob et Grep, ne lisent que les fichiers que le tableau de bord nomme dans son message et répondent par un bloc JSON. Le tableau de bord contrôle ce bloc et écrit lui-même les brouillons ; il recalcule le destinataire depuis le mail d'origine, et un mail ne passe à « traité » que si l'agent l'a réellement cité. Le contenu des mails est une donnée, jamais une instruction.
+
+### Connecter votre boîte (tableau de bord, onglet Courrier)
+
+1. Installez le tableau de bord (voir plus haut), ouvrez Gestion puis l'onglet **Courrier**, et cliquez sur **Activer le courrier**. Avant cela, le tableau de bord n'ouvre aucune connexion de messagerie.
+2. Choisissez votre fournisseur, saisissez l'adresse et un mot de passe d'application, cliquez sur **Enregistrer** puis **Tester la connexion**. Le mot de passe est chiffré par le système et n'est plus jamais affiché.
+3. **Relever** récupère les nouveaux mails (lecture seule), **Récap mails** lance l'agent `courrier`, **Préparer les devis** lance l'agent `devis`. Validez les brouillons, puis **Envoyer** : une boîte de dialogue du système liste les destinataires avant tout envoi.
+
+| Fournisseur | Mot de passe à utiliser | Avant de connecter |
+|---|---|---|
+| Zoho Mail (zoho.eu ou zoho.com) | Un mot de passe d'application (compte Zoho, Sécurité, Mots de passe d'application) | Activez IMAP (paramètres de Zoho Mail, Mail, Accès IMAP) et choisissez la région de votre compte. |
+| Gmail / Google Workspace | Un mot de passe d'application (compte Google, Sécurité ; validation en deux étapes obligatoire). Le mot de passe habituel est refusé. | Vérifiez qu'IMAP est activé (Paramètres, Voir tous les paramètres, Transfert et POP/IMAP). Un administrateur Workspace peut bloquer IMAP ou les mots de passe d'application. |
+| Outlook.com / Microsoft 365 | Un mot de passe d'application, si votre compte en propose | Microsoft exige de plus en plus l'authentification moderne (OAuth), que cette version ne gère pas : la connexion peut être refusée. Sur Microsoft 365, l'administrateur doit autoriser IMAP et l'envoi SMTP authentifié (SMTP AUTH). |
+| OVHcloud (MX Plan) | Le mot de passe de l'adresse, défini dans l'espace client OVHcloud | IMAP est actif par défaut. Pour Email Pro ou Exchange, choisissez « Autre » avec les serveurs indiqués dans votre espace client. |
+| iCloud Mail | Un mot de passe pour app (compte Apple, Connexion et sécurité ; double authentification obligatoire) | Si la connexion échoue, mettez dans « Identifiant » la partie de l'adresse avant le @. |
+| Autre | Celui que votre fournisseur indique pour IMAP et SMTP | Saisissez serveur, port et sécurité (SSL/TLS ou STARTTLS) pour IMAP et SMTP. Un nom de serveur est exigé (ni adresse IP, ni localhost) ; la connexion non chiffrée n'est pas proposée. |
+
+Les devis demandent votre propre grille de prix : copiez `examples/grille-prix.exemple.json` (fictive) sous le nom `grille-prix.json` dans le dossier `echange` du tableau de bord, puis remplacez ses lignes par vos prestations et vos prix. Les lignes facultatives `mentions` (mentions légales, conditions de paiement) sont imprimées en bas du PDF.
+
+### Brancher un autre système
+
+`examples/` garde des modèles pour une autre installation (serveur MCP de messagerie, script ou API) : `examples/agents/courrier.md`, `examples/agents/devis.md`, `examples/calculer-devis.exemple.js`. Le guide `docs/ETENDRE.md` explique comment brancher un système, ajouter un agent et quelles règles de sécurité conserver.
 
 ## Sécurité et vie privée
 
@@ -151,9 +183,9 @@ Ajouté au contexte du modèle : la composition de l'équipe (début de conversa
 
 Jamais envoyé : rien ne quitte votre machine par les hooks. Le didacticiel lit la seule page que vous indiquez, par l'outil de lecture web de Claude Code. Pour signaler une vulnérabilité, voir `SECURITY.md`.
 
-### Tableau de bord (option, testé sous Windows)
+### Tableau de bord (recommandé, testé sous Windows)
 
-Une application Electron affiche l'état des agents et des conversations à partir des fichiers de `~/.kinan-os/` et applique `theme`. C'est une option séparée, non incluse dans ce plugin, testée uniquement sous Windows. En plus des fichiers ci-dessus, elle lit la fin des journaux récents de Claude Code (`~/.claude/projects`) pour le rappel de relais et l'alerte TOKEN OUT. La version de l'auteur contient aussi un module de veille de sites et un module de courrier qui ouvrent, eux, des connexions réseau ; une édition publique du tableau de bord sera livrée sans ces modules, et tant qu'elle n'est pas publiée et auditée, ne supposez pas que le tableau de bord fonctionne hors ligne.
+Une application Electron affiche l'état des agents et des conversations à partir des fichiers de `~/.kinan-os/` et applique `theme`. C'est un dépôt séparé, [kinan-dashboard](https://github.com/StudioObsidienne/kinan-dashboard), non inclus dans ce plugin : installez-le pour une configuration complète. Testé uniquement sous Windows. En plus des fichiers ci-dessus, elle lit la fin des journaux récents de Claude Code (`~/.claude/projects`) pour le rappel de relais et l'alerte TOKEN OUT. Par défaut, elle n'ouvre aucune connexion réseau. Deux options en ouvrent, seulement une fois activées : la vérification des mises à jour (`raw.githubusercontent.com`) et l'onglet Courrier (les serveurs IMAP et SMTP de la boîte que vous choisissez, plus `claude -p` pour les récaps, qui utilise votre compte Claude comme toute session Claude Code). `npm run verifier` dans le dossier du tableau de bord contrôle ces règles de façon statique ; son README liste chaque connexion et chaque fichier lu ou écrit.
 
 ### Limites générales
 
