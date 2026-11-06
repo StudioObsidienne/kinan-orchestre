@@ -1,3 +1,5 @@
+> **Mise à jour :** lance `/plugin marketplace update kinan`, puis mets à jour **kinan-orchestre** depuis le menu `/plugin` (onglet Installed) et redémarre Claude Code. Pour les mises à jour automatiques : `/plugin` > Marketplaces > `kinan` > Enable auto-update. Tableau de bord : `git pull` dans son dossier, puis relance.
+
 <p align="center">
   <img src="assets/logo.svg" alt="Logo Kinan orchestre : un juge en perruque blanche tenant un marteau" width="96" height="96">
 </p>
@@ -165,3 +167,6 @@ Ouvrez un ticket avant un changement important (nouvel agent par défaut, nouvel
 ## Licence
 
 Apache License 2.0, copyright Studio Obsidienne. Voir `LICENSE` et `NOTICE`. La licence n'accorde aucun droit sur les noms ou marques du projet.
+
+## Pistes d'amélioration
+Les pistes d'amélioration futures (aucune n'est encore en place) sont dans [ROADMAP.fr.md](ROADMAP.fr.md) : fondations et tests, benchmark reproductible des économies, routage et vérification plus fiables, puis le tableau de bord comme produit. Aucun chiffre n'est annoncé tant qu'il n'est pas mesuré.

@@ -1,3 +1,5 @@
+> **Update:** run `/plugin marketplace update kinan`, then update **kinan-orchestre** from the `/plugin` menu (Installed tab) and restart Claude Code. To get updates automatically, open `/plugin` > Marketplaces > `kinan` > Enable auto-update. Dashboard: `git pull` in its folder, then relaunch.
+
 <p align="center">
   <img src="assets/logo.svg" alt="Kinan orchestre logo: a judge in a white wig holding a gavel" width="96" height="96">
 </p>
@@ -165,3 +167,6 @@ Open an issue before a significant change (new default agent, new hook event, ch
 ## License
 
 Apache License 2.0, copyright Studio Obsidienne. See `LICENSE` and `NOTICE`. The license grants no right to the project's names or marks.
+
+## Improvement ideas
+Ideas for future improvements (none implemented yet) are in [ROADMAP.md](ROADMAP.md): foundations and tests, a reproducible savings benchmark, a more reliable router and verification, then the dashboard as a product. Nothing is claimed until measured.
