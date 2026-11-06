@@ -10,7 +10,7 @@
 
 <p align="center"><a href="README.md">English</a> | <b>Français</b> | <a href="https://kinan-orchestre-site.vercel.app/">Site web</a></p>
 
-https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
+https://github.com/user-attachments/assets/52b5355d-6d5a-4ccf-82df-796bd43d4a53
 
 <p align="center"><sub>Teaser de 95 secondes, sans voix, avec effets sonores discrets (son à activer). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
 
