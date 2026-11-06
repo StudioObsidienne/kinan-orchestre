@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
-> État : version 0.2.0, version de départ (ajoute le courrier optionnel). Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée. Une prochaine version est en cours.
+> État : version 0.2.0, version de départ (ajoute le courrier optionnel). Les manifestes passent `claude plugin validate` (y compris `--strict`). Testé sous Windows sur l'ordinateur de testeurs, premiers retours déjà intégrés. Une prochaine version est en cours.
 
 ## Pourquoi
 
