@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 
-> Status: version 0.1.0, early release. The manifests pass `claude plugin validate` (including `--strict`). Installation on a third-party machine has not been tested yet.
+> Status: version 0.1.0, early release. The manifests pass `claude plugin validate` (including `--strict`). Installation on a third-party machine has not been tested yet. A next version is in progress.
 
 ## Why
 
@@ -72,6 +72,8 @@ claude --agent kinan-orchestre:kinan
 ```
 
 The first two lines are typed inside Claude Code (a local path to this folder also works for the first). The third starts a conversation with the judge from your terminal. The plugin does not force a default main agent: you choose when to use it.
+
+**Recommended setting:** for the judge to work as designed, select **Sonnet 5.5** with **medium** effort in the main Claude chat (model and effort pickers, or `/model`). He delegates the heavy work to the other agents; a larger model in the main chat costs more without making him better.
 
 ## First run
 

@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
-> État : version 0.1.0, première version. Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée.
+> État : version 0.1.0, première version. Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée. Une prochaine version est en cours.
 
 ## Pourquoi
 
@@ -72,6 +72,8 @@ claude --agent kinan-orchestre:kinan
 ```
 
 Les deux premières lignes se tapent dans Claude Code (un chemin local vers ce dossier convient aussi pour la première). La troisième ouvre, depuis votre terminal, une conversation avec le juge. Le plugin n'impose pas d'agent principal par défaut : vous choisissez quand l'utiliser.
+
+**Réglage recommandé :** pour que le juge fonctionne comme prévu, choisissez **Sonnet 5.5** avec un effort **moyen** dans le chat Claude principal (sélecteurs de modèle et d'effort, ou `/model`). Il confie le gros du travail aux autres agents ; un modèle plus gros dans le chat principal coûte plus sans le rendre meilleur.
 
 ## Premier lancement
 
