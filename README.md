@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
 
 <p align="center"><sub>45-second teaser (silent). The dashboard footage uses demo data.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 
-> Status: version 0.1.0, early release. The manifests pass `claude plugin validate` (including `--strict`). Installation on a third-party machine has not been tested yet. A next version is in progress.
+> Status: version 0.2.0, early release (adds the optional mailbox). The manifests pass `claude plugin validate` (including `--strict`). Installation on a third-party machine has not been tested yet. A next version is in progress.
 
 ## Why
 

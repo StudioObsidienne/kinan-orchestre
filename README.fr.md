@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/04b19d7e-5a4e-4bde-993d-5b7ff8587252
 
 <p align="center"><sub>Teaser de 45 secondes (muet). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
-> État : version 0.1.0, première version. Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée. Une prochaine version est en cours.
+> État : version 0.2.0, version de départ (ajoute le courrier optionnel). Les manifestes passent `claude plugin validate` (y compris `--strict`). Installation chez un tiers pas encore testée. Une prochaine version est en cours.
 
 ## Pourquoi
 

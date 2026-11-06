@@ -1,7 +1,7 @@
 {
   "name": "kinan-orchestre",
   "displayName": "Kinan orchestre",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Orchestre d'agents pour Claude Code : chaque tâche est confiée au modèle le moins cher capable de la réussir, puis vérifiée par un juge.",
   "author": { "name": "Studio Obsidienne" },
   "license": "Apache-2.0",

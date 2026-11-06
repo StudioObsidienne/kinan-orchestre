@@ -3,6 +3,8 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
+
+## [0.2.0] - 2026-11-06
 ### Ajouté
 - Section `theme` de `kinan.config.json` (couleurs `#rgb`/`#rrggbb`, polices, logo, source), validée dans `hooks/lib/config.js` et affichée par `outils/verifier-config.js` ; appliquée par le tableau de bord, livré à part.
 - Compétence `/kinan-orchestre:demarrage` : didacticiel de premier lancement.
