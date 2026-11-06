@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "juge": { "couleur": null, "avatar": null },
+  "agents": {
+    "drafion": {
+      "nom": "Drafion",
+      "base": "lecture",
+      "role": "Lectures, recherches, vérifications, mesures. Lecture seule.",
+      "modele": "haiku",
+      "effort": "low",
+      "effortHaut": "medium",
+      "couleur": null,
+      "avatar": null,
+      "actif": true
+    },
+    "skyze": {
+      "nom": "Skyze",
+      "base": "production",
+      "role": "Production courante : pages, styles, textes, documentation, code sans difficulté particulière.",
+      "modele": "sonnet",
+      "effort": "medium",
+      "effortHaut": "high",
+      "couleur": null,
+      "avatar": null,
+      "actif": true
+    },
+    "johms": {
+      "nom": "Johms",
+      "base": "expert",
+      "role": "Difficulté réelle : bug qui résiste, animation ou rendu complexe, architecture, spec d'un gros chantier.",
+      "modele": "opus",
+      "effort": "high",
+      "effortHaut": "xhigh",
+      "couleur": null,
+      "avatar": null,
+      "actif": true
+    }
+  },
+  "relais": { "minutes": 120, "jetons": 300000, "intervalleMinutes": 20 },
+  "sons": { "actif": true },
+  "textes": {
+    "phrasesTravail": ["Je travaille", "Bien reçu", "Je m'y mets", "Je réfléchis…", "Je répartis le travail"],
+    "rappel": null
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "kinan",
+  "description": "Marketplace du plugin Kinan orchestre : orchestre d'agents pour Claude Code.",
+  "owner": { "name": "Studio Obsidienne" },
+  "plugins": [
+    {
+      "name": "kinan-orchestre",
+      "source": "./",
+      "description": "Orchestre d'agents : délégation au moins cher capable, vérification, rappel de relais.",
+      "author": { "name": "Studio Obsidienne" }
+    }
+  ]
+}
