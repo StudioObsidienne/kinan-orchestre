@@ -1,15 +1,15 @@
 # Kinan Orchestre: improvement ideas
 
-These are improvement ideas, not features already in place. Nothing below is delivered. We will move step by step.
+Ticked items are done. The others are improvement ideas, not features already in place. We will move step by step.
 
 ## Phase 1: consolidate the foundations
-- Install test on an outside machine (Windows, then macOS and Linux)
-- Automated tests (scripts, hooks, dashboard startup)
-- Interruption and failure tests: silent agent, failing hook, corrupted config, stuck task
-- Concurrency: locking when two agents touch the same files
-- Document each agent's permissions and allowed tools
-- Working public demo
-- Updates: explanation at the top of the README, version check in the dashboard
+- [x] Install test on an outside machine (Windows: done by a tester; macOS and Linux still to do)
+- [x] Automated tests (scripts, hooks, dashboard startup): `node --test tests/` in the plugin, `npm test` in the dashboard (includes a real Electron start-up)
+- [x] Interruption and failure tests: silent agent, failing hook, corrupted config, stuck task (`tests/erreurs.test.js`); corrupted state files are now repaired instead of blocking later events
+- [x] Concurrency: locking when two agents touch the same files (`hooks/verrou-fichiers.js`, `tests/concurrence.test.js`). Limits: edits made through Bash are not seen; subagents of one conversation are told apart only when Claude Code passes `agent_id`
+- [x] Document each agent's permissions and allowed tools (README, "Agent permissions"; checked by `tests/manifestes.test.js`)
+- [ ] Working public demo
+- [x] Updates: explanation at the top of the README, version check in the dashboard (off by default)
 
 ## Phase 2: prove the value
 - Reproducible benchmark, Kinan vs a single model: input/output tokens, cost, time, call count, quality at equivalent result

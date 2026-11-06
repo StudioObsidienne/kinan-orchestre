@@ -55,6 +55,7 @@ Aucun chiffre d'économie n'est annoncé. Un comparatif mesuré (même tâche, u
 | Sons | tableau de bord | Réglage `sons` du fichier de configuration. |
 | Thème (couleurs, polices, logo) | enregistré et validé par le plugin ; appliqué par le tableau de bord | Le plugin ne change rien à l'écran par lui-même. Sans le tableau de bord, le thème n'a pas d'effet visible. |
 | Didacticiel de premier lancement (`/kinan-orchestre:demarrage`) | plugin | Lit une seule page, celle que vous indiquez ; les couleurs et polices relevées sont approximatives et vous sont présentées pour validation avant toute écriture. |
+| Réservation des fichiers : un fichier du projet en cours de modification par un agent lui est réservé ; un autre agent (ou une autre conversation) qui veut le modifier est refusé et invité à signaler le conflit | plugin (`hooks/verrou-fichiers.js`) | Couvre Edit, Write, MultiEdit et NotebookEdit, pas les fichiers modifiés par Bash. Deux sous-agents d'une même conversation ne sont distingués que si Claude Code transmet leur `agent_id` au hook. Une réservation prend fin avec l'agent, ou après 10 minutes sans nouvelle modification. En cas d'erreur, rien n'est refusé. |
 | Fiche de projet `PROJET.md` (`/kinan-orchestre:projet`) | plugin | Le modèle remplit seulement ce qu'il peut vérifier ; le reste est à compléter. |
 | Contrôles par scripts : le juge préfère un script qui rend un résumé court à la lecture de pages entières | méthode | Le plugin ne fournit pas de script de contrôle : à écrire pour chaque projet. |
 | Courrier et devis : récap des nouveaux mails (une ligne par point), brouillons de réponse, brouillons de devis à partir de votre grille de prix | agents `courrier` (Haiku) et `devis` (Sonnet) : plugin ; boîte mail, validation et envoi : onglet Courrier du tableau de bord, optionnel et désactivé par défaut | Les agents ne font que lire (Read, Glob, Grep) et répondent par un bloc JSON contrôlé par le tableau de bord. Les montants sont calculés par le tableau de bord depuis votre grille, jamais par le modèle. Rien n'est envoyé sans votre validation et une confirmation du système. Voir [Courrier et devis](#courrier-et-devis). |
@@ -171,15 +172,28 @@ Les devis demandent votre propre grille de prix : copiez `examples/grille-prix.e
 
 `examples/` garde des modèles pour une autre installation (serveur MCP de messagerie, script ou API) : `examples/agents/courrier.md`, `examples/agents/devis.md`, `examples/calculer-devis.exemple.js`. Le guide `docs/ETENDRE.md` explique comment brancher un système, ajouter un agent et quelles règles de sécurité conserver.
 
+## Permissions des agents
+
+| Agent | Modèle par défaut | Outils autorisés | Remarques |
+|---|---|---|---|
+| `kinan` (juge) | sonnet | Tous les outils de la session (pas de champ `tools`) | Délègue, lit les diffs, relance les contrôles, fait lui-même les petites tâches. Tenu par les règles de sécurité verrouillées. |
+| `lecture` | haiku | Read, Grep, Glob, Bash, WebFetch, WebSearch | Présenté comme lecture seule, mais Bash peut modifier des fichiers : ici, la lecture seule est une consigne, pas une contrainte. |
+| `production` | sonnet | Tous les outils de la session | Écrit des fichiers. |
+| `expert` | opus | Tous les outils de la session | Écrit des fichiers. |
+| `courrier` | haiku | Read, Grep, Glob | Lecture seule imposée : ni shell, ni réseau, ni écriture. |
+| `devis` | sonnet | Read, Grep, Glob | Lecture seule imposée : ni shell, ni réseau, ni écriture. |
+
+« Tous les outils de la session » : ce que votre session Claude Code autorise, selon vos propres réglages de permissions (`/permissions`, mode de permission) ; le plugin n'accorde rien de plus. Un agent ajouté dans `kinan.config.json` reprend l'une de ces définitions (`base`) ou un type d'agent que vous nommez, avec ses outils. `tests/manifestes.test.js` échoue si les outils d'une définition changent sans que ce tableau soit mis à jour.
+
 ## Sécurité et vie privée
 
-Les hooks du plugin n'ouvrent aucune connexion réseau et n'ont aucune dépendance externe.
+Les hooks du plugin n'ouvrent aucune connexion réseau et n'ont aucune dépendance externe. Un hook peut refuser un outil : `verrou-fichiers.js` refuse la modification d'un fichier réservé par un autre agent actif ; en cas d'erreur, il ne refuse rien.
 
 Lu : l'événement envoyé par Claude Code au hook ; le début (64 Ko) et la fin (512 Ko) du journal local de la conversation, pour la durée et la taille du contexte ; `kinan.config.json` ; l'existence et la date de `.claude/relais.md` (pas son contenu).
 
 Ajouté au contexte du modèle : la composition de l'équipe (début de conversation), l'avis de point de reprise, le rappel de relais. Les textes issus de la configuration sont nettoyés (une ligne, sans chevrons ni accents graves, longueur bornée).
 
-Écrit dans `~/.kinan-os/` : `state.json`, `state.lock` (temporaire), `historique.jsonl`, `taches.json`, `sessions.json` (nom et chemin du projet, chemin du journal), `agents-ids.json`, `rappels.json`. Le texte de vos messages n'est jamais enregistré ; les descriptions de mission écrites par le juge le sont. Ces fichiers ne sont pas chiffrés et ne sont pas supprimés à la désinstallation.
+Écrit dans `~/.kinan-os/` : `state.json`, `state.lock` (temporaire), `historique.jsonl`, `taches.json`, `sessions.json` (nom et chemin du projet, chemin du journal), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (chemins des fichiers en cours de modification par un agent, gardés 10 minutes au plus), `fichiers.lock` et `rappels.lock` (temporaires). Le texte de vos messages n'est jamais enregistré ; les descriptions de mission écrites par le juge le sont. Ces fichiers ne sont pas chiffrés et ne sont pas supprimés à la désinstallation.
 
 Écrit dans le projet, à votre demande : `.claude/relais.md`, `PROJET.md`.
 
@@ -192,7 +206,7 @@ Une application Electron affiche l'état des agents et des conversations à part
 ### Limites générales
 
 - Les agents suivent des consignes écrites : leur respect n'est pas garanti.
-- Hooks testés par événements simulés ; comportement sous macOS et Linux non testé.
+- Hooks couverts par des tests automatisés à événements simulés (`node --test tests/` : fonctionnement normal, erreurs et fichiers corrompus, concurrence) ; lancés sous Windows seulement, comportement sous macOS et Linux non testé.
 - Les règles propres à votre projet vont dans votre `CLAUDE.md` ou `PROJET.md`, pas dans le plugin.
 - Installation chez un tiers : non testée tant que ce n'est pas fait.
 
@@ -205,4 +219,4 @@ Ouvrez un ticket avant un changement important (nouvel agent par défaut, nouvel
 Apache License 2.0, copyright Studio Obsidienne. Voir `LICENSE` et `NOTICE`. La licence n'accorde aucun droit sur les noms ou marques du projet.
 
 ## Pistes d'amélioration
-Les pistes d'amélioration futures (aucune n'est encore en place) sont dans [ROADMAP.fr.md](ROADMAP.fr.md) : fondations et tests, benchmark reproductible des économies, routage et vérification plus fiables, puis le tableau de bord comme produit. Aucun chiffre n'est annoncé tant qu'il n'est pas mesuré.
+Les pistes d'amélioration sont dans [ROADMAP.fr.md](ROADMAP.fr.md). La phase 1 est en partie faite (tests automatisés, gestion des erreurs, concurrence, permissions) ; restent le test d'installation sur une machine extérieure et la démonstration publique. Le reste n'est pas encore en place : fondations et tests, benchmark reproductible des économies, routage et vérification plus fiables, puis le tableau de bord comme produit. Aucun chiffre n'est annoncé tant qu'il n'est pas mesuré.

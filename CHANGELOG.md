@@ -3,6 +3,17 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
+### Ajouté
+- Tests automatisés `tests/` (`node --test tests/`, sans dépendance) : hooks, scripts, manifestes, permissions des agents, entrées illisibles, fichiers corrompus, agent muet, tâche bloquée, verrous, hooks simultanés.
+- Hook `hooks/verrou-fichiers.js` (PreToolUse Edit/Write/MultiEdit/NotebookEdit, SubagentStop, Stop) : un fichier modifié par un agent lui est réservé ; un autre agent ou une autre conversation est refusé jusqu'à la fin de cet agent ou 10 min sans modification.
+- `hooks/lib/fichiers.js` : lecture tolérante, écriture atomique et verrou communs aux hooks.
+- README : section « Permissions des agents » ; juge : jamais deux agents en parallèle sur les mêmes fichiers.
+### Corrigé
+- Un `state.json`, `taches.json`, `sessions.json`, `agents-ids.json` ou `rappels.json` corrompu (par exemple `null`) bloquait tous les événements suivants : il est réparé au premier événement.
+- Agent muet : un agent « au travail » sans nouvelle depuis 1 h repasse au repos au prochain événement.
+- Tâche bloquée : une mission « en cours » depuis plus de 4 h repasse « à faire » (champ `interrompue`) et ne capte plus l'identifiant ni la fin d'un nouvel agent ; une tâche saisie dans le tableau de bord n'est plus liée à un agent.
+- `rappels.json` écrit de façon atomique sous verrou ; `session.js` annonce l'équipe même si l'événement reçu est illisible.
+
 
 ## [0.2.1] - 2026-11-06
 ### Ajouté

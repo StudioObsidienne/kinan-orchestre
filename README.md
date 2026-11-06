@@ -52,6 +52,7 @@ No savings figure is given. A measured comparison (same task, one large model ag
 | 3-hour savings report | dashboard | Estimate at public API prices, not an invoice; a subscription is not billed that way. |
 | TOKEN OUT alert: shown when Claude Code writes in its logs that a usage limit (5-hour or weekly) is reached, with the resume time and a countdown | dashboard | Detection reads the end of recent Claude Code logs every 30 seconds; their format is not a documented interface. If the text cannot be read, the resume time is shown as unknown. |
 | Event log (last 2,000 lines) | plugin | Local, unencrypted; contains mission descriptions. |
+| File reservation: a project file being modified by an agent is reserved for it; another agent (or another conversation) that tries to modify it is refused and told to report the conflict | plugin (`hooks/verrou-fichiers.js`) | Covers Edit, Write, MultiEdit and NotebookEdit, not files changed through Bash. Two subagents of the same conversation are told apart only when Claude Code gives the hook their `agent_id`. A reservation ends with the agent, or after 10 minutes without a new modification. On any error, nothing is refused. |
 | Sounds | dashboard | `sons` setting in the configuration file. |
 | Theme (colors, fonts, logo) | stored and validated by the plugin; applied by the dashboard | The plugin changes nothing on screen by itself. Without the dashboard, the theme has no visible effect. |
 | First-run walkthrough (`/kinan-orchestre:demarrage`) | plugin | Reads one page that you name; colors and fonts it reports are approximate and are shown to you for approval before anything is written. |
@@ -171,15 +172,28 @@ Quotes need your own price grid: copy `examples/grille-prix.exemple.json` (ficti
 
 `examples/` keeps templates for a different setup (a messaging MCP server, a script or an API): `examples/agents/courrier.md`, `examples/agents/devis.md`, `examples/calculer-devis.exemple.js`. The guide `docs/ETENDRE.md` explains how to connect a system, how to add an agent, and which safety rules to keep.
 
+## Agent permissions
+
+| Agent | Default model | Allowed tools | Notes |
+|---|---|---|---|
+| `kinan` (judge) | sonnet | All tools of the session (no `tools` field) | Delegates, reads diffs, reruns checks, does small tasks itself. Bound by the locked safety rules. |
+| `lecture` | haiku | Read, Grep, Glob, Bash, WebFetch, WebSearch | Described as read-only, but Bash can modify files: read-only is an instruction here, not enforced. |
+| `production` | sonnet | All tools of the session | Writes files. |
+| `expert` | opus | All tools of the session | Writes files. |
+| `courrier` | haiku | Read, Grep, Glob | Read-only enforced: no shell, no network, no write. |
+| `devis` | sonnet | Read, Grep, Glob | Read-only enforced: no shell, no network, no write. |
+
+"All tools of the session" means what your Claude Code session allows, under your own permission settings (`/permissions`, permission mode): the plugin grants nothing beyond that. An agent added in `kinan.config.json` uses one of these definitions (`base`) or an agent type you name, and gets that definition's tools. `tests/manifestes.test.js` fails if a definition's tools change while this table is not updated.
+
 ## Security and privacy
 
-The plugin's hooks make no network connection and have no external dependency.
+The plugin's hooks make no network connection and have no external dependency. One hook can refuse a tool call: `verrou-fichiers.js` refuses an edit of a file reserved by another active agent; on any error it refuses nothing.
 
 Read: the event Claude Code sends to the hook; the start (64 KB) and end (512 KB) of the conversation's local log, for duration and context size; `kinan.config.json`; the existence and date of `.claude/relais.md` (not its content).
 
 Added to the model's context: the team composition (conversation start), the resume-point notice, the relay reminder. Text from the configuration is cleaned first (one line, no angle brackets or backticks, bounded length).
 
-Written to `~/.kinan-os/`: `state.json`, `state.lock` (temporary), `historique.jsonl`, `taches.json`, `sessions.json` (project name and path, log path), `agents-ids.json`, `rappels.json`. The text of your messages is never recorded; mission descriptions written by the judge are. These files are unencrypted and are not removed on uninstall.
+Written to `~/.kinan-os/`: `state.json`, `state.lock` (temporary), `historique.jsonl`, `taches.json`, `sessions.json` (project name and path, log path), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (paths of the files being modified by an agent, kept 10 minutes at most), `fichiers.lock` and `rappels.lock` (temporary). The text of your messages is never recorded; mission descriptions written by the judge are. These files are unencrypted and are not removed on uninstall.
 
 Written to the project, on your request: `.claude/relais.md`, `PROJET.md`.
 
@@ -192,7 +206,7 @@ An Electron application displays agent and conversation state from the files in 
 ### General limits
 
 - Agents follow written instructions: compliance is not guaranteed.
-- Hooks tested with simulated events; behaviour on macOS and Linux is untested.
+- Hooks covered by automated tests with simulated events (`node --test tests/`: normal flow, errors and corrupted files, concurrency); run on Windows only, behaviour on macOS and Linux is untested.
 - Rules specific to your project belong in your `CLAUDE.md` or `PROJET.md`, not in the plugin.
 - Third-party installation: not tested until it has been done.
 
@@ -205,4 +219,4 @@ Open an issue before a significant change (new default agent, new hook event, ch
 Apache License 2.0, copyright Studio Obsidienne. See `LICENSE` and `NOTICE`. The license grants no right to the project's names or marks.
 
 ## Improvement ideas
-Ideas for future improvements (none implemented yet) are in [ROADMAP.md](ROADMAP.md): foundations and tests, a reproducible savings benchmark, a more reliable router and verification, then the dashboard as a product. Nothing is claimed until measured.
+Improvement ideas are in [ROADMAP.md](ROADMAP.md). Phase 1 is partly done (automated tests, failure handling, concurrency, permissions); the outside install test and the public demo are still to do. The rest is not implemented yet: foundations and tests, a reproducible savings benchmark, a more reliable router and verification, then the dashboard as a product. Nothing is claimed until measured.

@@ -1,15 +1,15 @@
 # Pistes d'amélioration de Kinan Orchestre
 
-Ce sont des pistes d'amélioration, pas des fonctions déjà en place. Rien ci-dessous n'est livré. On avancera étape par étape.
+Les éléments cochés sont faits. Les autres sont des pistes d'amélioration, pas des fonctions déjà en place. On avancera étape par étape.
 
 ## Phase 1 : consolider les fondations
-- Test d'installation sur une machine extérieure (Windows, puis macOS et Linux)
-- Tests automatisés (scripts, hooks, démarrage du tableau de bord)
-- Tests d'interruption et d'erreur : agent muet, hook en échec, configuration corrompue, tâche bloquée
-- Concurrence : verrouillage quand deux agents touchent les mêmes fichiers
-- Documenter les permissions et les outils autorisés de chaque agent
-- Démonstration publique fonctionnelle
-- Mise à jour : explication en tête du README, vérification de version dans le tableau de bord
+- [x] Test d'installation sur une machine extérieure (Windows : fait par un testeur ; macOS et Linux à faire)
+- [x] Tests automatisés (scripts, hooks, démarrage du tableau de bord) : `node --test tests/` dans le plugin, `npm test` dans le tableau de bord (avec un vrai démarrage d'Electron)
+- [x] Tests d'interruption et d'erreur : agent muet, hook en échec, configuration corrompue, tâche bloquée (`tests/erreurs.test.js`) ; un fichier d'état corrompu est maintenant réparé au lieu de bloquer les événements suivants
+- [x] Concurrence : verrouillage quand deux agents touchent les mêmes fichiers (`hooks/verrou-fichiers.js`, `tests/concurrence.test.js`). Limites : les modifications faites par Bash ne sont pas vues ; les sous-agents d'une même conversation ne sont distingués que si Claude Code transmet `agent_id`
+- [x] Documenter les permissions et les outils autorisés de chaque agent (README, « Permissions des agents » ; contrôlé par `tests/manifestes.test.js`)
+- [ ] Démonstration publique fonctionnelle
+- [x] Mise à jour : explication en tête du README, vérification de version dans le tableau de bord (désactivée par défaut)
 
 ## Phase 2 : prouver la valeur
 - Benchmark reproductible, Kinan contre un modèle unique : jetons d'entrée et de sortie, coût, temps, nombre d'appels, qualité à résultat équivalent

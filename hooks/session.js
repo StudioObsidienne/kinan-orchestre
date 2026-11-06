@@ -8,7 +8,7 @@ let brut = '';
 process.stdin.on('data', (d) => (brut += d));
 process.stdin.on('end', () => {
   try {
-    const e = JSON.parse(brut || '{}');
+    let e = {}; try { e = JSON.parse(brut || '{}') || {}; } catch { /* événement illisible : l'équipe est quand même annoncée */ }
     const cfg = charger();
     const l = [];
     l.push(`ÉQUIPE KINAN (configuration locale de l'utilisateur ; juge : ${cfg.juge.nom}). Agents disponibles :`);

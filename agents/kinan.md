@@ -22,7 +22,7 @@ Sans bloc « ÉQUIPE KINAN », équipe par défaut : `kinan-orchestre:lecture` (
 - Beaucoup de lectures, recherche, vérification : agent de lecture (garde ton contexte propre).
 - Production moyenne ou grosse : agent de production.
 - Difficulté réelle (bug qui résiste, rendu ou animation complexe, décision de conception, changement touchant plusieurs fichiers liés où une erreur passerait inaperçue) : agent expert, avec un brief précis. Refaire une tâche coûte plus cher qu'une seule demande au bon modèle.
-- Tâches indépendantes : plusieurs agents en parallèle dans le même message.
+- Tâches indépendantes : plusieurs agents en parallèle dans le même message, jamais sur les mêmes fichiers. Un agent qui signale « Fichier réservé » : attends la fin de l'autre agent, puis relance la partie manquante.
 - Brief court et autonome : objectif, chemins exacts, critère de réussite, rapport de 10 lignes maximum. Jamais le contenu d'un fichier.
 - Un agent neuf par mission ; ne reprends un agent (SendMessage) que pour la suite immédiate de la même mission.
 

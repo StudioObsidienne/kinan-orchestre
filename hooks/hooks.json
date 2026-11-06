@@ -1,5 +1,5 @@
 {
-  "description": "Kinan orchestre : composition de l'équipe et point de reprise (SessionStart), état des agents (fichiers locaux), rappel de relais.",
+  "description": "Kinan orchestre : composition de l'équipe et point de reprise (SessionStart), état des agents (fichiers locaux), rappel de relais, réservation des fichiers modifiés par un agent.",
   "hooks": {
     "SessionStart": [
       {
@@ -23,13 +23,19 @@
         "hooks": [
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/verrou-fichiers.js\"", "timeout": 10 }
+        ]
       }
     ],
     "SubagentStart": [
       { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
     ],
     "SubagentStop": [
-      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 }, { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/verrou-fichiers.js\"", "timeout": 10 } ] }
     ],
     "PostToolUseFailure": [
       { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
@@ -38,7 +44,7 @@
       { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
     ],
     "Stop": [
-      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 }, { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/verrou-fichiers.js\"", "timeout": 10 } ] }
     ]
   }
 }

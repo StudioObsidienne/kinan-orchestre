@@ -5,6 +5,7 @@
 3. Avant de proposer :
    - `claude plugin validate .` passe ;
    - `node --check` passe sur chaque fichier de `hooks/` et `outils/` ;
+   - `node --test tests/` passe (hooks, erreurs, concurrence, manifestes, permissions des agents) ;
    - les hooks restent silencieux en cas d'erreur, sans accès réseau, sans dépendance externe ;
    - `examples/` ne contient aucun code d'envoi (courrier, message, devis) ;
    - aucune donnée personnelle, aucun chemin absolu propre à une machine, aucun chiffre non mesuré.

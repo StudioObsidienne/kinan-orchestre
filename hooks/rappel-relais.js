@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const { charger } = require('./lib/config');
+const { lireObjet, ecrireAtomique, prendreVerrou, libererVerrou } = require('./lib/fichiers');
 
 function lireTete(f, n = 64 * 1024) {
   const fd = fs.openSync(f, 'r');
@@ -38,14 +39,18 @@ process.stdin.on('end', () => {
     const minutes = debut ? Math.round((Date.now() - debut) / 60000) : 0;
     if (minutes < SEUIL_MIN && ctx < SEUIL_CTX) return;
     // Anti-répétition par conversation (fichier rappels.json du dossier d'état, entrées de plus de 7 jours purgées).
+    // Fichier corrompu : repart de zéro (au pire un rappel de plus). Verrou court : deux conversations simultanées ne s'écrasent pas.
     const F = path.join(cfg.dossier, 'rappels.json');
-    let r = {}; try { r = JSON.parse(fs.readFileSync(F, 'utf8')); } catch {}
-    const id = String(e.session_id || f);
-    if (Date.now() - (r[id] || 0) < INTERVALLE_MIN * 60000) return;
-    r[id] = Date.now();
-    for (const k of Object.keys(r)) if (Date.now() - r[k] > 7 * 86400000) delete r[k];
-    fs.mkdirSync(cfg.dossier, { recursive: true });
-    fs.writeFileSync(F, JSON.stringify(r));
+    const verrou = prendreVerrou(path.join(cfg.dossier, 'rappels.lock'), 20);
+    try {
+      const r = lireObjet(F);
+      const id = String(e.session_id || f);
+      if (Date.now() - (Number(r[id]) || 0) < INTERVALLE_MIN * 60000) return;
+      r[id] = Date.now();
+      for (const k of Object.keys(r)) if (!(Date.now() - Number(r[k]) <= 7 * 86400000)) delete r[k];
+      fs.mkdirSync(cfg.dossier, { recursive: true });
+      ecrireAtomique(F, JSON.stringify(r));
+    } finally { libererVerrou(verrou); }
     const h = Math.floor(minutes / 60), m = String(minutes % 60).padStart(2, '0'), k = Math.round(ctx / 1000);
     const modele = cfg.textes.rappel ||
       'RAPPEL OBLIGATOIRE (économie de jetons) : cette conversation est ouverte depuis {h} h {m} et son contexte est d\'environ {k} k jetons. Commence ta réponse par cette ligne exacte : « REFAIRE CONVERSATION : tape /kinan-orchestre:relais, puis ouvre une nouvelle conversation et écris : reprends. » Réponds ensuite normalement, sans commentaire sur ce rappel.';

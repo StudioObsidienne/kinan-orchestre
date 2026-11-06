@@ -16,22 +16,26 @@ const cle = (nom) => config.idAgent(CFG, nom);
 // Mission confiée par l'outil Agent : la description commence par « <id> : » (règle du juge) ; sinon, d'après le type d'agent.
 const agentDeMission = (ti) => { const m = /^\s*([a-z][a-z0-9-]{0,23})\s*:/.exec(String(ti.description || '')); return (m && AGENTS.includes(m[1]) && m[1] !== 'kinan') ? m[1] : cle(ti.subagent_type); };
 
-// Écriture atomique : fichier temporaire puis renommage.
-function ecrireAtomique(f, contenu) {
-  const tmp = f + '.' + process.pid + '.' + Date.now() + '.tmp';
-  try {
-  fs.writeFileSync(tmp, contenu);
-  for (let i = 0; ; i++) { // 3 essais espacés de 50 ms (EPERM/EBUSY sous Windows)
-    try { fs.renameSync(tmp, f); return; } catch (e) {
-      if (i >= 2 || !['EPERM', 'EBUSY', 'EACCES'].includes(e.code)) { try { fs.unlinkSync(tmp); } catch {} throw e; }
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
-    }
-  }
-  } catch (e) { try { fs.unlinkSync(tmp); } catch {} throw e; }
-}
+// Lecture tolérante, écriture atomique et verrou : hooks/lib/fichiers.js.
+const { lireObjet, ecrireAtomique, prendreVerrou: verrouFichier, libererVerrou } = require('./lib/fichiers');
+const UNE_HEURE = 3600 * 1000;
+const TACHE_BLOQUEE = 4 * UNE_HEURE; // tâche « en cours » sans fin signalée depuis 4 h : considérée comme interrompue
 
+// État lu et réparé : un fichier corrompu (null, tableau, JSON tronqué, agents illisibles) repart d'un état propre au lieu de bloquer
+// tous les événements suivants. Agent muet : un agent « au travail » sans nouvelle depuis 1 h, sans exemplaire récent, repasse au repos.
 function lire() {
-  try { return JSON.parse(fs.readFileSync(FICHIER, 'utf8')); } catch { return { agents: {} }; }
+  const etat = lireObjet(FICHIER, () => ({ agents: {} }));
+  if (!etat.agents || typeof etat.agents !== 'object' || Array.isArray(etat.agents)) etat.agents = {};
+  const maintenant = Date.now();
+  for (const [k, a] of Object.entries(etat.agents)) {
+    if (!a || typeof a !== 'object' || Array.isArray(a)) { delete etat.agents[k]; continue; }
+    if (a.instances !== undefined) {
+      a.instances = Array.isArray(a.instances) ? a.instances.filter((x) => x && typeof x === 'object' && maintenant - (Number(x.maj || x.depuis) || 0) < UNE_HEURE) : [];
+      if (!a.instances.length) delete a.instances;
+    }
+    if (a.etat === 'travail' && !a.instances && maintenant - (Number(a.maj) || 0) > UNE_HEURE) etat.agents[k] = { etat: 'repos', tache: '', maj: maintenant };
+  }
+  return etat;
 }
 
 function ecrire(etat) {
@@ -55,7 +59,7 @@ const F_IDS = path.join(DOSSIER, 'agents-ids.json');
 function memoriserId(id, agent) {
   try {
     if (!id || !agent) return;
-    let d = {}; try { d = JSON.parse(fs.readFileSync(F_IDS, 'utf8')); } catch {}
+    const d = lireObjet(F_IDS);
     d[String(id)] = agent;
     const cles = Object.keys(d); if (cles.length > 200) delete d[cles[0]];
     ecrireAtomique(F_IDS, JSON.stringify(d));
@@ -65,7 +69,7 @@ function idVersCle(to) {
   try {
     if (!to) return null;
     const direct = cle(String(to)); if (direct) return direct;
-    return cle(JSON.parse(fs.readFileSync(F_IDS, 'utf8'))[String(to)]);
+    return cle(lireObjet(F_IDS)[String(to)]);
   } catch { return null; }
 }
 
@@ -73,16 +77,30 @@ function idVersCle(to) {
 // debut / fin : horodatages réels en ms. agentId : identifiant du sous-agent qui exécute la tâche (connu dès SubagentStart,
 // ou tout de suite pour un SendMessage adressé à un identifiant).
 const F_TACHES = path.join(DOSSIER, 'taches.json');
+// Tâche bloquée : une mission « en cours » (début connu) sans fin signalée depuis 4 h repasse « à faire » avec « interrompue »
+// (horodatage). Elle ne capte plus l'identifiant d'un nouvel agent ni sa fin ; le travail n'est pas compté comme fait.
+// « bloquees » indique qu'il faut réécrire le fichier même si l'appelant ne change rien d'autre.
 function lireTaches() {
-  let d; try { d = JSON.parse(fs.readFileSync(F_TACHES, 'utf8')); } catch { d = { taches: [] }; }
-  d.taches = Array.isArray(d.taches) ? d.taches : [];
+  const d = lireObjet(F_TACHES, () => ({ taches: [] }));
+  d.taches = Array.isArray(d.taches) ? d.taches.filter((x) => x && typeof x === 'object' && !Array.isArray(x)) : [];
+  const maintenant = Date.now();
+  let bloquees = 0;
+  for (const t of d.taches) {
+    if (t.statut === 'en cours' && Number.isFinite(t.debut) && maintenant - t.debut > TACHE_BLOQUEE) { t.statut = 'à faire'; t.interrompue = maintenant; bloquees++; }
+  }
+  Object.defineProperty(d, 'bloquees', { value: bloquees, enumerable: false });
   return d;
+}
+// Tâche écrite par ce hook (mission) : seules celles-ci sont liées à un agent ou terminées par lui, jamais une tâche saisie dans le tableau de bord.
+const deMission = (x) => x.origine === 'mission' || Number.isFinite(x.debut);
+function nettoyerTaches() {
+  try { const d = lireTaches(); if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); } catch { /* jamais bloquant */ }
 }
 function ajouterTache(agent, titre, agentId) {
   try {
     if (!agent || !titre) return;
     const d = lireTaches();
-    if (d.taches.some((x) => x.agent === agent && x.titre === titre && x.statut === 'en cours')) return; // pas de doublon
+    if (d.taches.some((x) => x.agent === agent && x.titre === titre && x.statut === 'en cours')) { if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); return; } // pas de doublon
     const id = d.taches.reduce((m, x) => Math.max(m, Number(x.id) || 0), 0) + 1;
     const t = { id, titre, agent, statut: 'en cours', cree: new Date().toISOString().slice(0, 10), origine: 'mission', debut: Date.now() };
     if (agentId) t.agentId = String(agentId);
@@ -96,11 +114,10 @@ function lierAgentId(agent, agentId) {
   try {
     if (!agent || !agentId) return;
     const d = lireTaches();
-    if (d.taches.some((x) => x.agentId === String(agentId) && x.statut === 'en cours')) return; // déjà lié (reprise)
-    const t = d.taches.find((x) => x.agent === agent && x.statut === 'en cours' && !x.agentId);
-    if (!t) return;
-    t.agentId = String(agentId);
-    ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2));
+    const t = d.taches.some((x) => x.agentId === String(agentId) && x.statut === 'en cours') ? null // déjà lié (reprise)
+      : d.taches.find((x) => x.agent === agent && x.statut === 'en cours' && !x.agentId && deMission(x));
+    if (t) t.agentId = String(agentId);
+    if (t || d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2));
   } catch { /* jamais bloquant */ }
 }
 
@@ -111,42 +128,20 @@ function marquerFait(agent, agentId) {
   try {
     if (!agent) return;
     const d = lireTaches();
-    const enCours = d.taches.filter((x) => x.agent === agent && x.statut === 'en cours');
+    const enCours = d.taches.filter((x) => x.agent === agent && x.statut === 'en cours' && deMission(x));
     let cibles = agentId ? enCours.filter((x) => x.agentId === String(agentId)) : [];
     if (!cibles.length) { const t = enCours.find((x) => !x.agentId) || (agentId ? null : enCours[0]); if (t) cibles = [t]; }
-    if (!cibles.length) return;
+    if (!cibles.length) { if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); return; }
     const fin = Date.now();
     for (const t of cibles) { t.statut = 'fait'; t.fin = fin; }
     ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2));
   } catch { /* jamais bloquant */ }
 }
 
-// Verrou simple par fichier (création exclusive), avec attente courte et reprise d'un verrou périmé.
+// Verrou commun à tous les fichiers d'état (state.lock, partagé avec le tableau de bord), ~1,5 s d'attente au maximum.
+// Non obtenu : on continue quand même (mieux vaut un état légèrement faux qu'un hook bloqué).
 const F_VERROU = path.join(DOSSIER, 'state.lock');
-let jeton = null; // propriétaire du verrou : on ne libère que le sien
-function prendreVerrou() {
-  fs.mkdirSync(DOSSIER, { recursive: true });
-  const pause = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-  for (let i = 0; i < 60; i++) { // ~1,5 s au maximum
-    try {
-      const fd = fs.openSync(F_VERROU, 'wx');
-      jeton = process.pid + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-      try { fs.writeSync(fd, jeton); } catch { // verrou sans propriétaire : on le retire et on réessaie
-        try { fs.closeSync(fd); } catch {} try { fs.unlinkSync(F_VERROU); } catch {} jeton = null; pause(25); continue;
-      }
-      return fd;
-    } catch {
-      try { if (Date.now() - fs.statSync(F_VERROU).mtimeMs > 3000) { const avant = fs.readFileSync(F_VERROU, 'utf8'); if (fs.readFileSync(F_VERROU, 'utf8') === avant) fs.unlinkSync(F_VERROU); } } catch {}
-      pause(25);
-    }
-  }
-  return null; // on continue quand même : mieux vaut un état légèrement faux qu'un hook bloqué
-}
-function libererVerrou(fd) {
-  if (fd === null || fd === undefined) return;
-  try { fs.closeSync(fd); } catch {}
-  try { if (fs.readFileSync(F_VERROU, 'utf8') === jeton) fs.unlinkSync(F_VERROU); } catch {}
-}
+const prendreVerrou = () => verrouFichier(F_VERROU, 60);
 
 function regler(etat, agent, valeurs) {
   if (!agent) return;
@@ -163,9 +158,9 @@ function majSessions(e, etat) {
   try {
     if (!e.session_id) return;
     const f = path.join(DOSSIER, 'sessions.json');
-    let d = {}; try { d = JSON.parse(fs.readFileSync(f, 'utf8')); } catch {}
+    const d = lireObjet(f);
     const ev = e.hook_event_name, ti = e.tool_input || {};
-    const s = d[e.session_id] || { tache: '' };
+    const s0 = d[e.session_id], s = s0 && typeof s0 === 'object' && !Array.isArray(s0) ? s0 : { tache: '' };
     s.projet = path.basename(String(e.cwd || s.cwd || '')) || s.projet || 'projet';
     s.cwd = e.cwd || s.cwd; s.transcript = e.transcript_path || s.transcript; s.maj = Date.now();
     if (ev === 'Stop' || ev === 'SessionStart') { s.etat = 'repos'; s.tache = ''; }
@@ -178,7 +173,7 @@ function majSessions(e, etat) {
       else if (ev === 'SubagentStart') { const k = cle(e.agent_type); if (k && etat.agents && etat.agents[k]) s.tache = court(k + ' : ' + etat.agents[k].tache, 70); }
     }
     d[e.session_id] = s;
-    for (const k of Object.keys(d)) if (Date.now() - (d[k].maj || 0) > 24 * 3600 * 1000) delete d[k];
+    for (const k of Object.keys(d)) if (!d[k] || Date.now() - (Number(d[k].maj) || 0) > 24 * UNE_HEURE) delete d[k];
     ecrireAtomique(f, JSON.stringify(d));
   } catch { /* silencieux */ }
 }
@@ -189,6 +184,7 @@ process.stdin.on('end', () => {
   let verrou = null;
   try {
     const e = JSON.parse(brut || '{}');
+    if (!e || typeof e !== 'object' || Array.isArray(e)) return;
     verrou = prendreVerrou(); // évite que deux hooks simultanés s'écrasent l'un l'autre
     const etat = lire();
     // Changement de conversation : on repart d'un état propre (les agents de l'ancienne conversation repassent au repos).
@@ -200,6 +196,7 @@ process.stdin.on('end', () => {
     switch (e.hook_event_name) {
       case 'SessionStart':
         regler(etat, 'kinan', { etat: 'repos' });
+        nettoyerTaches();
         break;
       case 'UserPromptSubmit':
         // Jamais le texte de l'utilisateur dans l'interface : une petite phrase d'ambiance suffit.
@@ -218,7 +215,7 @@ process.stdin.on('end', () => {
           const q = (Array.isArray(ti.questions) ? ti.questions[0] : null) || {};
           regler(etat, 'kinan', {
             etat: 'doute', tache: 'J\'ai une question pour toi',
-            question: { texte: court(q.question, 200), options: (q.options || []).slice(0, 4).map((o) => court(o.label, 40)) }
+            question: { texte: court(q.question, 200), options: (Array.isArray(q.options) ? q.options : []).slice(0, 4).map((o) => court(o.label, 40)) }
           });
         } else { // outil Agent : on retient la description de la mission
           const k = agentDeMission(ti);
