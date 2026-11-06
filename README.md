@@ -8,7 +8,9 @@
 
 <p align="center"><b>English</b> | <a href="README.fr.md">Français</a></p>
 
-<p align="center"><a href="assets/teaser-en.mp4"><img src="assets/teaser-poster-en.png" alt="Watch the 45-second teaser (mp4)" width="640"></a><br><sub>45-second teaser (silent, MP4). The dashboard footage uses demo data.</sub></p>
+https://github.com/user-attachments/assets/a36d4447-7aed-42f8-ad98-0f43f9339f9c
+
+<p align="center"><sub>45-second teaser (silent). The dashboard footage uses demo data.</sub></p>
 
 <p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.1.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 
