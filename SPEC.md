@@ -67,7 +67,7 @@ Emplacement : `<dossier d'état>/kinan.config.json`, dossier d'état = `KINAN_OS
 | `.nom` | texte ≤ 24 | Drafion / Skyze / Johms | contexte, tableau de bord |
 | `.base` | `lecture` \| `production` \| `expert` \| autre type d'agent | lecture / production / expert | `subagent_type` |
 | `.role` | texte ≤ 160, une ligne | voir fichier par défaut | contexte |
-| `.modele` | `haiku` \| `sonnet` \| `opus` \| `inherit` | selon la base : haiku / sonnet / opus | paramètre `model` |
+| `.modele` | `haiku` \| `sonnet` \| `opus` \| `inherit` | selon la base : haiku / sonnet / opus ; base personnalisée : sonnet (jamais `inherit` implicite) ; casse ignorée | paramètre `model` |
 | `.effort` / `.effortHaut` | `low`…`max` | selon la base : low/medium, medium/high, high/xhigh | paramètre `effort` |
 | `.couleur` / `.avatar` | `#rrggbb` / texte ≤ 200 | null (choix du tableau de bord) | tableau de bord |
 | `.actif` | booléen | true | tous |

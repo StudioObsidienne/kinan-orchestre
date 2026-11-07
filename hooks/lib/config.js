@@ -21,6 +21,20 @@ const PAR_BASE = {
   expert: { modele: 'opus', effort: 'high', effortHaut: 'xhigh' }
 };
 
+// Modèle saisi par l'utilisateur : casse et espaces ignorés (« Sonnet », « claude-sonnet-5-5 » -> « sonnet »). Sinon null.
+function normModele(v) {
+  if (typeof v !== 'string') return null;
+  const s = v.trim().toLowerCase();
+  if (MODELES.includes(s)) return s;
+  const m = /^claude-(haiku|sonnet|opus)(?:-|$)/.exec(s);
+  return m ? m[1] : null;
+}
+// Modèle du juge : lu dans agents/kinan.md (frontmatter « model: »), seule source ; repli Sonnet, jamais Opus.
+const F_JUGE = path.join(__dirname, '..', '..', 'agents', 'kinan.md');
+function modeleJuge() {
+  try { const m = /^---[\s\S]*?^model:\s*([A-Za-z0-9-]+)\s*$/m.exec(fs.readFileSync(F_JUGE, 'utf8')); return (m && normModele(m[1])) || 'sonnet'; } catch { return 'sonnet'; }
+}
+
 // Texte injecté dans le contexte : une ligne, sans balises, longueur bornée.
 const propre = (t, n) => String(t == null ? '' : t).replace(/[\r\n\t]+/g, ' ').replace(/[<>`]/g, '').trim().slice(0, n);
 const entier = (v, min, max, d) => (Number.isInteger(v) && v >= min && v <= max ? v : d);
@@ -59,7 +73,7 @@ function charger() {
   // Juge : verrouillé (nom « Kinan », rôle de contrôle). Seuls couleur et avatar sont réglables.
   const uj = u.juge && typeof u.juge === 'object' ? u.juge : {};
   if (uj.nom !== undefined || uj.role !== undefined || uj.modele !== undefined) alertes.push('juge : nom, rôle et modèle verrouillés, valeurs ignorées');
-  const juge = { id: 'kinan', nom: 'Kinan', couleur: couleur(uj.couleur) || couleur((d.juge || {}).couleur), avatar: propre(uj.avatar || (d.juge || {}).avatar, 200) || null };
+  const juge = { id: 'kinan', nom: 'Kinan', modele: modeleJuge(), couleur: couleur(uj.couleur) || couleur((d.juge || {}).couleur), avatar: propre(uj.avatar || (d.juge || {}).avatar, 200) || null };
 
   // Agents : la liste de l'utilisateur, si elle existe, remplace celle par défaut (ajout, retrait, renommage).
   const source = u.agents && typeof u.agents === 'object' && !Array.isArray(u.agents) ? u.agents : d.agents || {};
@@ -72,9 +86,13 @@ function charger() {
     const def = (d.agents || {})[id] || {};
     let base = typeof a.base === 'string' ? a.base : def.base;
     if (!BASES.includes(base) && !/^[a-z][a-z0-9:-]{0,63}$/.test(String(base || ''))) { alertes.push(`${id} : base invalide, « production » utilisée`); base = 'production'; }
-    if (a.modele !== undefined && !MODELES.includes(a.modele)) alertes.push(`${id} : modèle inconnu, modèle de la base utilisé`);
-    const pb = PAR_BASE[base] || { modele: 'inherit', effort: 'medium', effortHaut: 'high' }; // repli selon la base
-    const modele = MODELES.includes(a.modele) ? a.modele : MODELES.includes(def.modele) ? def.modele : pb.modele;
+    // Modèle : choix explicite de l'utilisateur (clé présente et valide) conservé tel quel, « inherit » compris.
+    // Clé absente : défaut de l'agent, puis de la base, puis Sonnet. Plus de repli « inherit » implicite : il donnait
+    // au sous-agent le modèle du chat principal (souvent Opus dans l'appli de bureau) sans que l'utilisateur l'ait choisi.
+    const choisi = normModele(a.modele);
+    if (a.modele !== undefined && !choisi) alertes.push(`${id} : modèle inconnu, modèle de la base utilisé`);
+    const pb = PAR_BASE[base] || { modele: 'sonnet', effort: 'medium', effortHaut: 'high' }; // base personnalisée : Sonnet
+    const modele = choisi || normModele(def.modele) || pb.modele;
     const effort = EFFORTS.includes(a.effort) ? a.effort : EFFORTS.includes(def.effort) ? def.effort : pb.effort;
     const effortHaut = EFFORTS.includes(a.effortHaut) ? a.effortHaut : EFFORTS.includes(def.effortHaut) ? def.effortHaut : pb.effortHaut;
     agents.push({
@@ -126,4 +144,4 @@ function idAgent(cfg, nom) {
   return parBase ? parBase.id : null;
 }
 
-module.exports = { charger, idAgent, PLUGIN, MODELES, EFFORTS, BASES };
+module.exports = { charger, idAgent, normModele, modeleJuge, PLUGIN, MODELES, EFFORTS, BASES };

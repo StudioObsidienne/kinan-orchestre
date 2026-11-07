@@ -2,7 +2,7 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [0.2.2] — 2026-11-07 — Drafion's Awakening (côté plugin : Sonnet par défaut)
 ### Ajouté
 - Tests automatisés `tests/` (`node --test tests/`, sans dépendance) : hooks, scripts, manifestes, permissions des agents, entrées illisibles, fichiers corrompus, agent muet, tâche bloquée, verrous, hooks simultanés.
 - Hook `hooks/verrou-fichiers.js` (PreToolUse Edit/Write/MultiEdit/NotebookEdit, SubagentStop, Stop) : un fichier modifié par un agent lui est réservé ; un autre agent ou une autre conversation est refusé jusqu'à la fin de cet agent ou 10 min sans modification.
@@ -10,6 +10,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [
 - Variable d'environnement `KINAN_VERROU=avertir` : le verrou de fichiers permet l'écriture et n'envoie qu'un avertissement à l'agent (par défaut, il refuse).
 - README : section « Permissions des agents » ; juge : jamais deux agents en parallèle sur les mêmes fichiers.
 ### Corrigé
+- Modèles : un agent sans `modele` sur une base personnalisée prend Sonnet (avant : `inherit`, soit le modèle du chat principal, souvent Opus) ; `modele` lu sans tenir compte de la casse (`"Sonnet"` n'est plus rejeté) ; le bloc ÉQUIPE indique le modèle du juge, lu dans `agents/kinan.md`. Un choix explicite (`opus`, `inherit`) est conservé ; `kinan.config.json` n'est jamais réécrit.
 - Un `state.json`, `taches.json`, `sessions.json`, `agents-ids.json` ou `rappels.json` corrompu (par exemple `null`) bloquait tous les événements suivants : il est réparé au premier événement.
 - Agent muet : un agent « au travail » sans nouvelle depuis 1 h repasse au repos au prochain événement.
 - Tâche bloquée : une mission « en cours » depuis plus de 4 h repasse « à faire » (champ `interrompue`) et ne capte plus l'identifiant ni la fin d'un nouvel agent ; une tâche saisie dans le tableau de bord n'est plus liée à un agent.

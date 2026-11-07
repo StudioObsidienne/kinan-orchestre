@@ -11,7 +11,7 @@ process.stdin.on('end', () => {
     let e = {}; try { e = JSON.parse(brut || '{}') || {}; } catch { /* événement illisible : l'équipe est quand même annoncée */ }
     const cfg = charger();
     const l = [];
-    l.push(`ÉQUIPE KINAN (configuration locale de l'utilisateur ; juge : ${cfg.juge.nom}). Agents disponibles :`);
+    l.push(`ÉQUIPE KINAN (configuration locale de l'utilisateur ; juge : ${cfg.juge.nom}, model ${cfg.juge.modele}). Agents disponibles :`);
     for (const a of cfg.agents) {
       l.push(`- ${a.id} (« ${a.nom} ») : subagent_type ${a.type}, model ${a.modele}, effort ${a.effort} (difficile : ${a.effortHaut}). Rôle : ${a.role}`);
     }
