@@ -2,6 +2,9 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
+## [À venir]
+- Échecs d'outil dédupliqués sur 60 s ; la tâche de session reconnaît aussi l'ancien nom d'outil `Task`.
+
 ## [0.2.2] — 2026-11-07 — Drafion's Awakening (côté plugin : Sonnet par défaut)
 ### Ajouté
 - Tests automatisés `tests/` (`node --test tests/`, sans dépendance) : hooks, scripts, manifestes, permissions des agents, entrées illisibles, fichiers corrompus, agent muet, tâche bloquée, verrous, hooks simultanés.

@@ -169,7 +169,7 @@ function majSessions(e, etat) {
     else {
       s.etat = 'travail';
       if (ev === 'UserPromptSubmit') s.tache = 'Au travail…';
-      else if (ev === 'PreToolUse' && e.tool_name === 'Agent') s.tache = court((ti.subagent_type || 'agent') + ' : ' + (ti.description || ''), 70);
+      else if (ev === 'PreToolUse' && (e.tool_name === 'Agent' || e.tool_name === 'Task')) s.tache = court((ti.subagent_type || 'agent') + ' : ' + (ti.description || ''), 70);
       else if (ev === 'SubagentStart') { const k = cle(e.agent_type); if (k && etat.agents && etat.agents[k]) s.tache = court(k + ' : ' + etat.agents[k].tache, 70); }
     }
     d[e.session_id] = s;

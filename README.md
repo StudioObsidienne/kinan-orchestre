@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/a978db97-4729-49fc-891f-31bbd257a1eb
 
 <p align="center"><sub>95-second teaser, no voice, with quiet sound effects (turn the sound on). The dashboard footage uses demo data.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.2</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 
-> Status: version 0.2.0, early release (adds the optional mailbox). The manifests pass `claude plugin validate` (including `--strict`). Tested on Windows on testers' own computers, first feedback already integrated. A next version is in progress.
+> Status: version 0.2.2, early release. The manifests pass `claude plugin validate` (including `--strict`). Tested on Windows on testers' own computers, first feedback already integrated. A next version is in progress.
 
 ## Why
 
@@ -63,7 +63,7 @@ No savings figure is given. A measured comparison (same task, one large model ag
 
 The agents' and skills' instructions are written in French. The judge answers in the language you use.
 
-Version numbers: the plugin and the kinan-dashboard app are two separate things with their own version numbers (for example plugin 0.2.1, dashboard 0.2.6). The dashboard shows both ("Dashboard" and "Plugin"). Updating one does not update the other: the plugin is updated in Claude Code, the dashboard with `git pull`.
+Version numbers: the plugin and the kinan-dashboard app are two separate things with their own version numbers (for example plugin 0.2.2, dashboard 0.3.1). The dashboard shows both ("Dashboard" and "Plugin"). Updating one does not update the other: the plugin is updated in Claude Code, the dashboard with `git pull`.
 
 ## Installation
 

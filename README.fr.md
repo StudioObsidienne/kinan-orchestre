@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/52b5355d-6d5a-4ccf-82df-796bd43d4a53
 
 <p align="center"><sub>Teaser de 95 secondes, sans voix, avec effets sonores discrets (son à activer). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.2</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
-> État : version 0.2.0, version de départ (ajoute le courrier optionnel). Les manifestes passent `claude plugin validate` (y compris `--strict`). Testé sous Windows sur l'ordinateur de testeurs, premiers retours déjà intégrés. Une prochaine version est en cours.
+> État : version 0.2.2, version de départ. Les manifestes passent `claude plugin validate` (y compris `--strict`). Testé sous Windows sur l'ordinateur de testeurs, premiers retours déjà intégrés. Une prochaine version est en cours.
 
 ## Pourquoi
 
@@ -63,7 +63,7 @@ Aucun chiffre d'économie n'est annoncé. Un comparatif mesuré (même tâche, u
 
 Les instructions des agents et des compétences sont rédigées en français. Le juge répond dans la langue que vous utilisez.
 
-Numéros de version : le plugin et l'appli kinan-dashboard sont deux éléments distincts, avec chacun leur numéro (par exemple plugin 0.2.1, dashboard 0.2.6). Le tableau de bord affiche les deux (« Dashboard » et « Plugin »). Mettre l'un à jour ne met pas l'autre à jour : le plugin se met à jour dans Claude Code, le tableau de bord avec `git pull`.
+Numéros de version : le plugin et l'appli kinan-dashboard sont deux éléments distincts, avec chacun leur numéro (par exemple plugin 0.2.2, dashboard 0.3.1). Le tableau de bord affiche les deux (« Dashboard » et « Plugin »). Mettre l'un à jour ne met pas l'autre à jour : le plugin se met à jour dans Claude Code, le tableau de bord avec `git pull`.
 
 ## Installation
 
