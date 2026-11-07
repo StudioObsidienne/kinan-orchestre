@@ -1,5 +1,5 @@
 {
-  "description": "Kinan orchestre : composition de l'équipe et point de reprise (SessionStart), état des agents (fichiers locaux), rappel de relais, réservation des fichiers modifiés par un agent.",
+  "description": "Kinan orchestre : composition de l'équipe et point de reprise (SessionStart), état des agents par conversation (fichiers locaux), rappel de relais, réservation des fichiers modifiés par un agent.",
   "hooks": {
     "SessionStart": [
       {
@@ -41,6 +41,9 @@
       { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
     ],
     "Notification": [
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
+    ],
+    "SessionEnd": [
       { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/etat.js\"", "timeout": 10 } ] }
     ],
     "Stop": [

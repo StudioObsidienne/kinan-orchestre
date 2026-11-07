@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/a978db97-4729-49fc-891f-31bbd257a1eb
 
 <p align="center"><sub>95-second teaser, no voice, with quiet sound effects (turn the sound on). The dashboard footage uses demo data.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.2</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.3.0</code> &nbsp;·&nbsp; <code>Claude Code plugin</code></p>
 
-> Status: version 0.2.2, early release. The manifests pass `claude plugin validate` (including `--strict`). Tested on Windows on testers' own computers, first feedback already integrated. A next version is in progress.
+> Status: version 0.3.0, early release. The manifests pass `claude plugin validate` (including `--strict`). Tested on Windows on testers' own computers, first feedback already integrated. A next version is in progress.
 
 ## Why
 
@@ -208,7 +208,7 @@ Read: the event Claude Code sends to the hook; the start (64 KB) and end (512 KB
 
 Added to the model's context: the team composition (conversation start), the resume-point notice, the relay reminder. Text from the configuration is cleaned first (one line, no angle brackets or backticks, bounded length).
 
-Written to `~/.kinan-os/`: `state.json`, `state.lock` (temporary), `historique.jsonl`, `taches.json`, `sessions.json` (project name and path, log path), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (paths of the files being modified by an agent, kept 10 minutes at most), `fichiers.lock` and `rappels.lock` (temporary). The text of your messages is never recorded; mission descriptions written by the judge are. These files are unencrypted and are not removed on uninstall.
+Written to `~/.kinan-os/`: `state.json` (mirror of the latest active conversation), `sessions/<id>.json` (state of each conversation, removed when it ends or after 24 h without activity), `state.lock` (temporary), `historique.jsonl`, `taches.json`, `sessions.json` (project name and path, log path), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (paths of the files being modified by an agent, kept 10 minutes at most), `fichiers.lock` and `rappels.lock` (temporary). The text of your messages is never recorded; mission descriptions written by the judge are. These files are unencrypted and are not removed on uninstall.
 
 Written to the project, on your request: `.claude/relais.md`, `PROJET.md`.
 

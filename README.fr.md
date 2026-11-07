@@ -14,9 +14,9 @@ https://github.com/user-attachments/assets/52b5355d-6d5a-4ccf-82df-796bd43d4a53
 
 <p align="center"><sub>Teaser de 95 secondes, sans voix, avec effets sonores discrets (son à activer). Les plans du tableau de bord utilisent des données de démonstration.</sub></p>
 
-<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.2.2</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
+<p align="center"><code>Apache-2.0</code> &nbsp;·&nbsp; <code>version 0.3.0</code> &nbsp;·&nbsp; <code>Plugin Claude Code</code></p>
 
-> État : version 0.2.2, version de départ. Les manifestes passent `claude plugin validate` (y compris `--strict`). Testé sous Windows sur l'ordinateur de testeurs, premiers retours déjà intégrés. Une prochaine version est en cours.
+> État : version 0.3.0, version de départ. Les manifestes passent `claude plugin validate` (y compris `--strict`). Testé sous Windows sur l'ordinateur de testeurs, premiers retours déjà intégrés. Une prochaine version est en cours.
 
 ## Pourquoi
 
@@ -208,7 +208,7 @@ Lu : l'événement envoyé par Claude Code au hook ; le début (64 Ko) et la fin
 
 Ajouté au contexte du modèle : la composition de l'équipe (début de conversation), l'avis de point de reprise, le rappel de relais. Les textes issus de la configuration sont nettoyés (une ligne, sans chevrons ni accents graves, longueur bornée).
 
-Écrit dans `~/.kinan-os/` : `state.json`, `state.lock` (temporaire), `historique.jsonl`, `taches.json`, `sessions.json` (nom et chemin du projet, chemin du journal), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (chemins des fichiers en cours de modification par un agent, gardés 10 minutes au plus), `fichiers.lock` et `rappels.lock` (temporaires). Le texte de vos messages n'est jamais enregistré ; les descriptions de mission écrites par le juge le sont. Ces fichiers ne sont pas chiffrés et ne sont pas supprimés à la désinstallation.
+Écrit dans `~/.kinan-os/` : `state.json` (miroir de la dernière conversation active), `sessions/<id>.json` (état de chaque conversation, supprimé à sa fermeture ou après 24 h sans activité), `state.lock` (temporaire), `historique.jsonl`, `taches.json`, `sessions.json` (nom et chemin du projet, chemin du journal), `agents-ids.json`, `rappels.json`, `fichiers-verrous.json` (chemins des fichiers en cours de modification par un agent, gardés 10 minutes au plus), `fichiers.lock` et `rappels.lock` (temporaires). Le texte de vos messages n'est jamais enregistré ; les descriptions de mission écrites par le juge le sont. Ces fichiers ne sont pas chiffrés et ne sont pas supprimés à la désinstallation.
 
 Écrit dans le projet, à votre demande : `.claude/relais.md`, `PROJET.md`.
 

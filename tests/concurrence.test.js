@@ -29,6 +29,24 @@ test(`${N} hooks simultanés : aucune mission perdue, identifiants uniques, fich
   assert.deepStrictEqual(fs.readdirSync(d).filter((f) => f.endsWith('.tmp')), [], 'aucun fichier temporaire oublié');
 });
 
+test('deux conversations simultanées : chacune garde ses agents, registre et fichiers valides', async (t) => {
+  const d = dossierTemp(t);
+  const agents = { A: 'skyze', B: 'drafion' };
+  const res = await Promise.all(Array.from({ length: 16 }, (_, i) => { const c = i % 2 ? 'B' : 'A';
+    return lancerAsync(HOOK('etat.js'), ev(d, 'PreToolUse', { session_id: 'conv-' + c, tool_name: 'Agent', tool_input: { subagent_type: 'kinan-orchestre:production', description: `${agents[c]} : tâche ${i}` } }), d); }));
+  for (const r of res) { assert.strictEqual(r.status, 0); assert.strictEqual(r.stderr, ''); }
+  const a = lireJson(d, path.join('sessions', 'conv-A.json')), b = lireJson(d, path.join('sessions', 'conv-B.json'));
+  assert.deepStrictEqual(Object.keys(a.agents), ['skyze']);
+  assert.deepStrictEqual(Object.keys(b.agents), ['drafion']);
+  assert.ok(['conv-A', 'conv-B'].includes(lireJson(d, 'state.json').session));
+  assert.deepStrictEqual(Object.keys(lireJson(d, 'sessions.json')).sort(), ['conv-A', 'conv-B']);
+  const taches = lireJson(d, 'taches.json').taches;
+  assert.strictEqual(taches.length, 16);
+  for (const x of taches) assert.strictEqual(x.session, x.agent === 'skyze' ? 'conv-A' : 'conv-B');
+  assert.ok(!existe(d, 'state.lock'));
+  assert.deepStrictEqual(fs.readdirSync(path.join(d, 'sessions')).filter((f) => f.endsWith('.tmp')), []);
+});
+
 test('réservation : un second agent ne peut pas modifier un fichier réservé par un agent actif', (t) => {
   const d = dossierTemp(t);
   const f = path.join(d, 'src', 'page.html');

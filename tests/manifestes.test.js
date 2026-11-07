@@ -42,7 +42,7 @@ test('node --check passe sur chaque script de hooks/ et outils/', () => {
 test('hooks : aucun module réseau, aucune dépendance externe', () => {
   for (const f of scripts()) {
     const src = fs.readFileSync(f, 'utf8');
-    for (const m of src.matchAll(/require\(['"]([^'"]+)['"]\)/g)) assert.ok(['fs', 'os', 'path', 'child_process'].includes(m[1]) || m[1].startsWith('.'), `${path.basename(f)} : ${m[1]}`);
+    for (const m of src.matchAll(/require\(['"]([^'"]+)['"]\)/g)) assert.ok(['fs', 'os', 'path', 'crypto', 'child_process'].includes(m[1]) || m[1].startsWith('.'), `${path.basename(f)} : ${m[1]}`);
     assert.ok(!/require\(['"]child_process['"]\)/.test(src), `${path.basename(f)} : aucun processus lancé`);
     assert.ok(!/\bfetch\(|https?\.request|net\.connect/.test(src), path.basename(f));
   }

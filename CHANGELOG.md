@@ -2,7 +2,14 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
-## [À venir]
+## [0.3.0] — 2026-11-07
+### Ajouté
+- Suivi de plusieurs conversations : chaque conversation a son état dans `sessions/<id>.json` (identifiant filtré, sinon empreinte sha1) ; deux conversations ouvertes ne s'écrasent plus.
+- `state.json` reste écrit comme avant (miroir de la dernière conversation active) : les tableaux de bord 0.3.x continuent de fonctionner.
+- Hook `SessionEnd` : la conversation est marquée terminée (`fin`) dans `sessions.json` et son fichier d'état supprimé.
+- `sessions.json` : champ `debut` ; `taches.json` : champ `session` pour les missions ; `historique.jsonl` : champ facultatif `s`.
+### Modifié
+- Purge après 24 h sans activité étendue aux fichiers `sessions/` (y compris orphelins).
 - Échecs d'outil dédupliqués sur 60 s ; la tâche de session reconnaît aussi l'ancien nom d'outil `Task`.
 
 ## [0.2.2] — 2026-11-07 — Drafion's Awakening (côté plugin : Sonnet par défaut)

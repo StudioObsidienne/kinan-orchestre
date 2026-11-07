@@ -1,4 +1,4 @@
-// Hook Claude Code : met à jour <dossier d'état>/state.json (0 jeton, ne bloque jamais Claude).
+// Hook Claude Code : met à jour <dossier d'état>/sessions/<conversation>.json et son miroir state.json (0 jeton, ne bloque jamais Claude).
 // Déclaré dans hooks/hooks.json du plugin ; l'événement arrive en JSON sur l'entrée standard. Aucun accès réseau.
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +7,8 @@ const path = require('path');
 const config = require('./lib/config');
 const CFG = config.charger();
 const DOSSIER = CFG.dossier;
-const FICHIER = path.join(DOSSIER, 'state.json');
+const FICHIER = path.join(DOSSIER, 'state.json'); // miroir de la dernière conversation active (lu par les tableaux de bord 0.3.x)
+const D_SESSIONS = path.join(DOSSIER, 'sessions'); // un fichier d'état par conversation (tableau de bord 0.4.0)
 const AGENTS = ['kinan', ...CFG.agents.map((a) => a.id)];
 
 const PHRASES = CFG.textes.phrasesTravail;
@@ -17,14 +18,16 @@ const cle = (nom) => config.idAgent(CFG, nom);
 const agentDeMission = (ti) => { const m = /^\s*([a-z][a-z0-9-]{0,23})\s*:/.exec(String(ti.description || '')); return (m && AGENTS.includes(m[1]) && m[1] !== 'kinan') ? m[1] : cle(ti.subagent_type); };
 
 // Lecture tolérante, écriture atomique et verrou : hooks/lib/fichiers.js.
-const { lireObjet, ecrireAtomique, prendreVerrou: verrouFichier, libererVerrou } = require('./lib/fichiers');
+const { lireObjet, ecrireAtomique, prendreVerrou: verrouFichier, libererVerrou, nomSur } = require('./lib/fichiers');
+const fichierSession = (sid) => path.join(D_SESSIONS, nomSur(sid) + '.json');
+let SID = null; // conversation de l'événement en cours (nom de fichier sûr), ou null
 const UNE_HEURE = 3600 * 1000;
 const TACHE_BLOQUEE = 4 * UNE_HEURE; // tâche « en cours » sans fin signalée depuis 4 h : considérée comme interrompue
 
 // État lu et réparé : un fichier corrompu (null, tableau, JSON tronqué, agents illisibles) repart d'un état propre au lieu de bloquer
 // tous les événements suivants. Agent muet : un agent « au travail » sans nouvelle depuis 1 h, sans exemplaire récent, repasse au repos.
-function lire() {
-  const etat = lireObjet(FICHIER, () => ({ agents: {} }));
+function lire(fichier) {
+  const etat = lireObjet(fichier, () => ({ agents: {} }));
   if (!etat.agents || typeof etat.agents !== 'object' || Array.isArray(etat.agents)) etat.agents = {};
   const maintenant = Date.now();
   for (const [k, a] of Object.entries(etat.agents)) {
@@ -38,9 +41,9 @@ function lire() {
   return etat;
 }
 
-function ecrire(etat) {
-  fs.mkdirSync(DOSSIER, { recursive: true });
-  ecrireAtomique(FICHIER, JSON.stringify(etat, null, 2));
+function ecrire(fichier, etat) {
+  fs.mkdirSync(path.dirname(fichier), { recursive: true });
+  ecrireAtomique(fichier, JSON.stringify(etat, null, 2));
 }
 
 // Journal des événements (<dossier d'état>/historique.jsonl), 2000 dernières lignes. Silencieux.
@@ -49,7 +52,7 @@ function journal(agent, etat, tache) {
     const f = path.join(DOSSIER, 'historique.jsonl');
     let lignes = [];
     try { lignes = fs.readFileSync(f, 'utf8').split(String.fromCharCode(10)).filter(Boolean); } catch {}
-    lignes.push(JSON.stringify({ t: Date.now(), agent, etat, tache }));
+    lignes.push(JSON.stringify({ t: Date.now(), agent, etat, tache, ...(SID ? { s: SID } : {}) }));
     ecrireAtomique(f, lignes.slice(-2000).join(String.fromCharCode(10)) + String.fromCharCode(10));
   } catch { /* jamais bloquant */ }
 }
@@ -93,6 +96,8 @@ function lireTaches() {
 }
 // Tâche écrite par ce hook (mission) : seules celles-ci sont liées à un agent ou terminées par lui, jamais une tâche saisie dans le tableau de bord.
 const deMission = (x) => x.origine === 'mission' || Number.isFinite(x.debut);
+// Tâche de cette conversation (les anciennes tâches sans « session » restent communes à toutes).
+const memeSession = (x) => !SID || !x.session || x.session === SID;
 function nettoyerTaches() {
   try { const d = lireTaches(); if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); } catch { /* jamais bloquant */ }
 }
@@ -100,10 +105,11 @@ function ajouterTache(agent, titre, agentId) {
   try {
     if (!agent || !titre) return;
     const d = lireTaches();
-    if (d.taches.some((x) => x.agent === agent && x.titre === titre && x.statut === 'en cours')) { if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); return; } // pas de doublon
+    if (d.taches.some((x) => x.agent === agent && x.titre === titre && x.statut === 'en cours' && memeSession(x))) { if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); return; } // pas de doublon
     const id = d.taches.reduce((m, x) => Math.max(m, Number(x.id) || 0), 0) + 1;
     const t = { id, titre, agent, statut: 'en cours', cree: new Date().toISOString().slice(0, 10), origine: 'mission', debut: Date.now() };
     if (agentId) t.agentId = String(agentId);
+    if (SID) t.session = SID;
     d.taches.push(t);
     ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2));
   } catch { /* jamais bloquant */ }
@@ -115,7 +121,8 @@ function lierAgentId(agent, agentId) {
     if (!agent || !agentId) return;
     const d = lireTaches();
     const t = d.taches.some((x) => x.agentId === String(agentId) && x.statut === 'en cours') ? null // déjà lié (reprise)
-      : d.taches.find((x) => x.agent === agent && x.statut === 'en cours' && !x.agentId && deMission(x));
+      : (d.taches.find((x) => x.agent === agent && x.statut === 'en cours' && !x.agentId && deMission(x) && SID && x.session === SID)
+        || d.taches.find((x) => x.agent === agent && x.statut === 'en cours' && !x.agentId && deMission(x) && memeSession(x)));
     if (t) t.agentId = String(agentId);
     if (t || d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2));
   } catch { /* jamais bloquant */ }
@@ -128,7 +135,7 @@ function marquerFait(agent, agentId) {
   try {
     if (!agent) return;
     const d = lireTaches();
-    const enCours = d.taches.filter((x) => x.agent === agent && x.statut === 'en cours' && deMission(x));
+    const enCours = d.taches.filter((x) => x.agent === agent && x.statut === 'en cours' && deMission(x) && memeSession(x));
     let cibles = agentId ? enCours.filter((x) => x.agentId === String(agentId)) : [];
     if (!cibles.length) { const t = enCours.find((x) => !x.agentId) || (agentId ? null : enCours[0]); if (t) cibles = [t]; }
     if (!cibles.length) { if (d.bloquees) ecrireAtomique(F_TACHES, JSON.stringify(d, null, 2)); return; }
@@ -154,28 +161,56 @@ function regler(etat, agent, valeurs) {
 }
 
 // Registre de toutes les conversations (<dossier d'état>/sessions.json) : permet de suivre plusieurs projets en même temps.
+// debut : premier événement ; fin : SessionEnd. Sans événement depuis 24 h : entrée et fichier sessions/<sid>.json purgés,
+// ainsi que les fichiers de sessions/ sans entrée au registre (orphelins).
 function majSessions(e, etat) {
   try {
     if (!e.session_id) return;
     const f = path.join(DOSSIER, 'sessions.json');
     const d = lireObjet(f);
     const ev = e.hook_event_name, ti = e.tool_input || {};
-    const s0 = d[e.session_id], s = s0 && typeof s0 === 'object' && !Array.isArray(s0) ? s0 : { tache: '' };
+    const maintenant = Date.now();
+    const s0 = d[SID], s = s0 && typeof s0 === 'object' && !Array.isArray(s0) ? s0 : { tache: '' };
     s.projet = path.basename(String(e.cwd || s.cwd || '')) || s.projet || 'projet';
-    s.cwd = e.cwd || s.cwd; s.transcript = e.transcript_path || s.transcript; s.maj = Date.now();
-    if (ev === 'Stop' || ev === 'SessionStart') { s.etat = 'repos'; s.tache = ''; }
-    else if (ev === 'Notification') { s.etat = 'doute'; s.tache = "J'attends ton feu vert"; }
-    else if (ev === 'PostToolUseFailure') { s.etat = 'erreur'; s.tache = 'Petit accroc'; }
+    s.cwd = e.cwd || s.cwd; s.transcript = e.transcript_path || s.transcript; s.maj = maintenant;
+    if (!Number.isFinite(s.debut)) s.debut = maintenant;
+    if (ev === 'SessionEnd') { s.etat = 'repos'; s.tache = ''; s.fin = maintenant; }
     else {
-      s.etat = 'travail';
-      if (ev === 'UserPromptSubmit') s.tache = 'Au travail…';
-      else if (ev === 'PreToolUse' && (e.tool_name === 'Agent' || e.tool_name === 'Task')) s.tache = court((ti.subagent_type || 'agent') + ' : ' + (ti.description || ''), 70);
-      else if (ev === 'SubagentStart') { const k = cle(e.agent_type); if (k && etat.agents && etat.agents[k]) s.tache = court(k + ' : ' + etat.agents[k].tache, 70); }
+      delete s.fin; // conversation reprise
+      if (ev === 'Stop' || ev === 'SessionStart') { s.etat = 'repos'; s.tache = ''; }
+      else if (ev === 'Notification') { s.etat = 'doute'; s.tache = "J'attends ton feu vert"; }
+      else if (ev === 'PostToolUseFailure') { s.etat = 'erreur'; s.tache = 'Petit accroc'; }
+      else {
+        s.etat = 'travail';
+        if (ev === 'UserPromptSubmit') s.tache = 'Au travail…';
+        else if (ev === 'PreToolUse' && (e.tool_name === 'Agent' || e.tool_name === 'Task')) s.tache = court((ti.subagent_type || 'agent') + ' : ' + (ti.description || ''), 70);
+        else if (ev === 'SubagentStart') { const k = cle(e.agent_type); if (k && etat && etat.agents && etat.agents[k]) s.tache = court(k + ' : ' + etat.agents[k].tache, 70); }
+      }
     }
-    d[e.session_id] = s;
-    for (const k of Object.keys(d)) if (!d[k] || Date.now() - (Number(d[k].maj) || 0) > 24 * UNE_HEURE) delete d[k];
+    d[SID] = s;
+    for (const k of Object.keys(d)) if (!d[k] || maintenant - (Number(d[k].maj) || 0) > 24 * UNE_HEURE) { delete d[k]; try { fs.unlinkSync(fichierSession(k)); } catch { /* déjà absent */ } }
     ecrireAtomique(f, JSON.stringify(d));
+    try {
+      for (const nom of fs.readdirSync(D_SESSIONS)) {
+        const m = /^([A-Za-z0-9-]{1,64})\.json$/.exec(nom);
+        const p = path.join(D_SESSIONS, nom); // orphelin : sans entrée au registre et inchangé depuis 1 min (écriture voisine en cours)
+        try { if (m && !Object.prototype.hasOwnProperty.call(d, m[1]) && maintenant - fs.statSync(p).mtimeMs > 60000) fs.unlinkSync(p); } catch { /* fichier suivant */ }
+      }
+    } catch { /* dossier absent */ }
   } catch { /* silencieux */ }
+}
+
+// Miroir state.json (format 0.2.2) : l'état de la conversation qui vient d'écrire ; changement de conversation :
+// les agents de l'ancienne repassent au repos (comportement 0.2.2 pour les anciens tableaux de bord).
+function ecrireMiroir(e, etatS) {
+  const m = lire(FICHIER);
+  let agents = etatS.agents;
+  if (m.session !== e.session_id) {
+    agents = {};
+    if (m.session) for (const k of Object.keys(m.agents || {})) agents[k] = { etat: 'repos', tache: '', maj: Date.now() };
+    Object.assign(agents, etatS.agents);
+  }
+  ecrire(FICHIER, { ...etatS, agents });
 }
 
 let brut = '';
@@ -186,12 +221,19 @@ process.stdin.on('end', () => {
     const e = JSON.parse(brut || '{}');
     if (!e || typeof e !== 'object' || Array.isArray(e)) return;
     verrou = prendreVerrou(); // évite que deux hooks simultanés s'écrasent l'un l'autre
-    const etat = lire();
-    // Changement de conversation : on repart d'un état propre (les agents de l'ancienne conversation repassent au repos).
-    if (e.session_id && etat.session !== e.session_id) {
-      if (etat.session) for (const k of Object.keys(etat.agents || {})) { etat.agents[k] = { etat: 'repos', tache: '', maj: Date.now() }; }
-      etat.session = e.session_id;
+    SID = e.session_id ? nomSur(e.session_id) : null;
+    if (e.hook_event_name === 'SessionEnd') { // fin de conversation : registre marqué, fichier de la conversation supprimé
+      if (SID) { majSessions(e, null); try { fs.unlinkSync(fichierSession(SID)); } catch { /* déjà absent */ } }
+      return;
     }
+    const fichier = SID ? fichierSession(SID) : FICHIER;
+    let etat = lire(fichier);
+    if (SID && !fs.existsSync(fichier)) { // première fois en 0.3.0 : on reprend state.json s'il décrit déjà cette conversation
+      const m = lire(FICHIER);
+      if (m.session === e.session_id) etat = m;
+    }
+    // Sans identifiant de conversation : state.json seul, comme en 0.2.2.
+    if (e.session_id) etat.session = e.session_id;
     if (e.transcript_path) etat.transcript = e.transcript_path;
     switch (e.hook_event_name) {
       case 'SessionStart':
@@ -268,7 +310,8 @@ process.stdin.on('end', () => {
       default:
         return;
     }
-    ecrire(etat);
+    ecrire(fichier, etat);
+    if (SID) ecrireMiroir(e, etat);
     majSessions(e, etat);
   } catch { /* un hook ne doit jamais gêner Claude */ }
   finally { libererVerrou(verrou); }

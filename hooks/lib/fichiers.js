@@ -62,4 +62,12 @@ function libererVerrou(v) {
   try { if (fs.readFileSync(v.fichier, 'utf8') === v.jeton) fs.unlinkSync(v.fichier); } catch { /* ignoré */ }
 }
 
-module.exports = { lireObjet, ecrireAtomique, prendreVerrou, libererVerrou };
+// Nom de fichier sûr pour un identifiant de conversation : gardé tel quel s'il ne contient que [A-Za-z0-9-] (1 à 64 caractères),
+// sinon empreinte sha1 tronquée. Jamais de « .. », de « / » ni de « \ ».
+function nomSur(sid) {
+  const s = String(sid == null ? '' : sid);
+  if (/^[A-Za-z0-9-]{1,64}$/.test(s)) return s;
+  return 'h' + require('crypto').createHash('sha1').update(s).digest('hex').slice(0, 24);
+}
+
+module.exports = { lireObjet, ecrireAtomique, prendreVerrou, libererVerrou, nomSur };
