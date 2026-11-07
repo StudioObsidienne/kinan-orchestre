@@ -12,6 +12,10 @@ Les éléments cochés sont faits. Les autres sont des pistes d'amélioration, p
 - [x] Mise à jour : explication en tête du README, vérification de version dans le tableau de bord (désactivée par défaut)
 
 ## Phase 2 : prouver la valeur
+Avis externe pris en compte (7 nov. 2026) : le prochain grand cap de Kinan n'est ni visuel ni fonctionnel, il est scientifique et technique. Il faut démontrer que l'orchestration apporte un avantage mesurable, que ses mécanismes résistent aux erreurs et que les résultats sont fiables : passer de la démonstration de fonctionnement à la démonstration de performance et de fiabilité. Trois documents à produire en premier :
+- [ ] `KINAN_ARCHITECTURE.md` : interactions entre les deux dépôts, flux de données, responsabilités et limites
+- [ ] `KINAN_BENCHMARK.md` : protocole de comparaison reproductible, avec résultats, coûts, temps et qualité
+- [ ] `KINAN_SECURITY.md` : permissions, données locales, accès réseau et mécanismes de protection (documentation centralisée)
 - Benchmark reproductible, Kinan contre un modèle unique : jetons d'entrée et de sortie, coût, temps, nombre d'appels, qualité à résultat équivalent
 - Trois jeux de tâches (simples, intermédiaires, complexes), chacun répété plusieurs fois
 - Publier les résultats, y compris les mauvais

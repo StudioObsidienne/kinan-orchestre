@@ -253,9 +253,12 @@ process.stdin.on('end', () => {
         marquerFait(k, id);
         break;
       }
-      case 'PostToolUseFailure':
+      case 'PostToolUseFailure': { // lissage : une rafale d'échecs ne répète pas l'erreur (ni le journal) pendant 60 s
+        const k0 = etat.agents && etat.agents.kinan;
+        if (k0 && k0.etat === 'erreur' && Date.now() - (k0.maj || 0) < 60000) break;
         regler(etat, 'kinan', { etat: 'erreur', tache: 'Petit accroc, je gère' });
         break;
+      }
       case 'Notification': // Claude attend une réponse ou une autorisation de l'utilisateur
         regler(etat, 'kinan', { etat: 'doute', tache: 'J\'attends ton feu vert' });
         break;

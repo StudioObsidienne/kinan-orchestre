@@ -12,6 +12,10 @@ Ticked items are done. The others are improvement ideas, not features already in
 - [x] Updates: explanation at the top of the README, version check in the dashboard (off by default)
 
 ## Phase 2: prove the value
+External review taken into account (7 Nov 2026): Kinan's next big milestone is neither visual nor functional, it is scientific and technical. It must show that the orchestration brings a measurable advantage, that its mechanisms withstand errors and that results are reliable: moving from a demonstration that it works to a demonstration of performance and reliability. Three documents to write first:
+- [ ] `KINAN_ARCHITECTURE.md`: how the two repositories interact, data flows, responsibilities and limits
+- [ ] `KINAN_BENCHMARK.md`: reproducible comparison protocol, with results, costs, times and quality
+- [ ] `KINAN_SECURITY.md`: permissions, local data, network access and protection mechanisms (one central document)
 - Reproducible benchmark, Kinan vs a single model: input/output tokens, cost, time, call count, quality at equivalent result
 - Three task sets (simple, intermediate, complex), each repeated several times
 - Publish the results, including bad ones
