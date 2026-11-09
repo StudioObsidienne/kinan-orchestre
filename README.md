@@ -229,6 +229,9 @@ An Electron application displays agent and conversation state from the files in 
 
 - [Known problems and fixes](docs/GALERES.en.md): what went wrong during setup and how to fix it.
 - [Master prompt](docs/PROMPT-MASTER.en.md): a ready-to-paste prompt that makes your assistant follow Kinan's settings on every request, to cut token use.
+- [Architecture](docs/KINAN_ARCHITECTURE.md) (in French): components, data flows, locks, version compatibility, how to add an agent.
+- [Benchmark protocol](docs/KINAN_BENCHMARK.md) (in French): reproducible comparison method; results table empty, no savings figure claimed until measured.
+- [Security](docs/KINAN_SECURITY.md) (in French): threat model, network, CSP, permissions, mail option, known limits.
 
 ## Contributing
 

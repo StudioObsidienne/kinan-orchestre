@@ -229,6 +229,9 @@ Une application Electron affiche l'état des agents et des conversations à part
 
 - [Problèmes connus et solutions](docs/GALERES.md) : ce qui peut mal tourner à l'installation et comment le corriger.
 - [Master prompt](docs/PROMPT-MASTER.md) : un prompt à coller, pour que votre assistant respecte les réglages de Kinan à chaque demande et consomme moins de jetons.
+- [Architecture](docs/KINAN_ARCHITECTURE.md) : composants, flux de données, verrous, compatibilité des versions, ajout d'un agent.
+- [Protocole de benchmark](docs/KINAN_BENCHMARK.md) : méthode de comparaison reproductible ; tableau de résultats vide, aucun chiffre d'économie annoncé tant que rien n'est mesuré.
+- [Sécurité](docs/KINAN_SECURITY.md) : modèle de menaces, réseau, CSP, permissions, option courrier, limites connues.
 
 ## Contribuer
 
