@@ -143,6 +143,8 @@ test('verrou périmé (processus tué) : repris, l\'état est écrit, le verrou 
 test('verrou tenu par un autre (tableau de bord) : le hook attend au plus ~1,5 s puis continue sans retirer ce verrou', (t) => {
   const d = dossierTemp(t);
   ecrire(d, 'state.lock', 'tableau-de-bord');
+  // Un tableau de bord vivant rafraîchit son verrou : on le date de l'avenir pour qu'un poste lent (CI) ne le juge pas périmé (3 s).
+  const futur = new Date(Date.now() + 60000); fs.utimesSync(path.join(d, 'state.lock'), futur, futur);
   const debut = Date.now();
   const r = lancer(ETAT, ev(d, 'UserPromptSubmit'), d);
   const duree = Date.now() - debut;
