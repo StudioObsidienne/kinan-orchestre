@@ -1,6 +1,6 @@
 # Kinan orchestre : protocole de benchmark
 
-État : **aucun résultat de comparaison n'existe à ce jour**. Ce document fixe la méthode ; les tableaux de résultats sont volontairement vides. Tant qu'ils ne sont pas remplis, aucun chiffre d'économie n'est annoncé (voir `ROADMAP.md`, phase 2). Les mauvais résultats seront publiés comme les bons.
+État : **aucun résultat de comparaison n'existe à ce jour** (seule une mesure observationnelle des conversations existe : section 6 bis). Ce document fixe la méthode ; les tableaux de résultats sont volontairement vides. Tant qu'ils ne sont pas remplis, aucun chiffre d'économie n'est annoncé (voir `ROADMAP.md`, phase 2). Les mauvais résultats seront publiés comme les bons.
 
 ## 1. Question et hypothèses
 
@@ -77,6 +77,27 @@ Mesure faite le 2026-11-10 (Windows 11, Node v26.13.0, 30 lancements par ligne, 
 | `rappel-relais.js` (sans journal de conversation) | 31 ms | 29 – 34 ms |
 
 Lecture : un hook coûte quelques dizaines de millisecondes, dont environ 25 ms de démarrage de Node. Ces valeurs viennent d'une machine, sur un état vide : `etat.js` grossit avec `historique.jsonl` (2 000 lignes au plus), et `rappel-relais.js` lit jusqu'à 512 Ko du journal réel. Ne pas en déduire un temps par tâche.
+
+## 6 bis. Mesure observationnelle du 10 novembre 2026 (sans condition témoin)
+
+Ce n'est **pas** le benchmark : aucune comparaison avec et sans Kinan n'a été faite, aucun coût n'est estimé (aucun tarif fourni), aucune économie n'est annoncée. C'est une photographie de la répartition réelle des jetons dans les conversations du projet Studio Obsidienne.
+
+Commande : `node bench/mesure-jetons-conversations.js <dossier des journaux .jsonl du projet>`. Données : 104 fichiers non vides, 15 conversations, 4 223 messages de l'assistant dédoublonnés par identifiant de message. Le journal de la session en cours était encore écrit pendant la mesure (instantané).
+
+| Périmètre | Appels | Jetons de sortie | Jetons d'entrée | Cache lu | Cache créé |
+|---|---|---|---|---|---|
+| Conversation principale | 2 090 | 1 453 293 | 5 084 | 528 899 354 | 8 212 473 |
+| Sous-agents | 2 135 | 2 981 989 | 4 346 | (voir détail par modèle) | |
+
+| Modèle | Appels (principale) | Sortie (principale) | Appels (sous-agents) | Sortie (sous-agents) | Cache lu (sous-agents) |
+|---|---|---|---|---|---|
+| Opus | 797 | 657 908 | 916 | 1 360 175 | 141 138 812 |
+| Sonnet | 1 293 | 795 385 | 1 023 | 1 321 103 | 164 902 048 |
+| Haiku | 0 | 0 | 196 | 300 711 | 6 483 145 |
+
+Parts, tous messages : jetons de sortie Opus 45,5 %, Sonnet 47,7 %, Haiku 6,8 % ; appels Opus 40,5 %, Sonnet 54,8 %, Haiku 4,6 %. Sous-agents seuls : sortie 45,6 % / 44,3 % / 10,1 % ; appels 42,9 % / 47,9 % / 9,2 %.
+
+Limites : une seule personne, un seul projet ; pas de série témoin ; le cache est compté à part ; les journaux sont locaux et non publiés ; les durées par conversation vont de quelques minutes à plus de 5 000 minutes (session laissée ouverte : intervalle, pas temps actif). Non mesuré : réussite, qualité, délégations et escalades (`taches.json` non lu), coût.
 
 ## 7. Tableaux de résultats (à remplir)
 
