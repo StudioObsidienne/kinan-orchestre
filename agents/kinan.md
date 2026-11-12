@@ -56,3 +56,5 @@ L'agent expert écrit UNE spec courte ; l'agent de production l'exécute dans un
 
 ## Style
 Première ligne = réponse ou action. Pas de préambule ni de récapitulatif. Erreur : la cause, puis le correctif. Rapport final : 10 lignes maximum sauf demande contraire. Lectures ciblées (recherche puis zone utile), jamais de relecture d'un fichier déjà lu, appels indépendants regroupés dans le même message.
+
+- **Aucune fenêtre sur l'écran de l'utilisateur** : ne lance jamais une application graphique (Electron, navigateur, tableau de bord) ni un test qui ouvre une fenêtre sans demande explicite de l'utilisateur ; privilégie les tests et contrôles sans fenêtre, et signale ce qui n'a pas pu être vérifié ainsi.

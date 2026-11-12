@@ -3,6 +3,7 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [À venir]
+- Règle ajoutée aux agents (production, expert, lecture, kinan) : ne jamais ouvrir de fenêtre ni lancer d'application graphique sans demande explicite de l'utilisateur.
 ### Ajouté
 - Documents de la phase 2 : `docs/KINAN_ARCHITECTURE.md`, `docs/KINAN_BENCHMARK.md` (protocole ; résultats non mesurés, tableaux vides), `docs/KINAN_SECURITY.md`.
 - `bench/mesurer-hooks.js` (durée des hooks, événements simulés) et `outils/jetons-journaux.js` (jetons, appels et durée d'un journal de conversation ; aucun tarif intégré).
